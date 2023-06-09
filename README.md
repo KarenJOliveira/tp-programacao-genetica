@@ -2,5 +2,5 @@ Treinamento Profissional - Implementação de Métodos de Programação Genétic
 (Em processo)
 
 Realizado:
-- Estudo inicial sobre Árvores Binárias e Heap;
+- Alteração dos arquivos para ponteiros
 - 
