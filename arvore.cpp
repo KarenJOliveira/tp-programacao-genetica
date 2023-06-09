@@ -1,7 +1,7 @@
 #include <iostream>
 #include <random>
 #include <math.h>
-#include "stack.h"
+#include "include/stack.h"
 
 using namespace std;
 
@@ -64,13 +64,19 @@ int main(){
     No *root = aloca_no();
 
     srand(SEED);
+    cout << "SEED: " << SEED << endl;
 
     fill_random_expr_tree(root, height, OPERATIONS, VARIABLES, size_op, size_var);
 
     s.nodesToStack(root);
 
-    traverse_postfix(root);
-    cout << endl;
+    //traverse_postfix(root);
+    //cout << endl;
+
+    while(!s.vazia()){
+        cout << " " << s.desempilha() << " ";
+
+    }
 
    return 0;
 }
