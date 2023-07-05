@@ -2,5 +2,5 @@ Treinamento Profissional - Implementação de Métodos de Programação Genétic
 (Em processo)
 
 Realizado:
-- Alteração dos arquivos para ponteiros
-- 
+- Estrutura da árvore usando alocação estática 
+- Implementação nos nós com operadores e variáveis
