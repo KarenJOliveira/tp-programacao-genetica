@@ -7,7 +7,7 @@
 #include <sstream>
 using namespace std;
 
-void leArquivo(int *x,int *y,int *z,int *esperado){
+void leArquivo(float *x,float *y,float *z,float *esperado){
     fstream file;
     file.open("data.csv", ios::in);
 
@@ -65,22 +65,23 @@ int main(){
     Pilha p;
     arv.empilha_arv(arv.raiz,&p);
     
-    Pilha p2;
-    p.copia_pilha(&p2);
-    
-    int x[10];
-    int y[10];
-    int z[10];
-    int valor_esperado[10];
+    float x[10];
+    float y[10];
+    float z[10];
+    float valor_esperado[10];
     
     arv.imprime();
     cout << endl;
     leArquivo(x,y,z,valor_esperado);
+    
+    Pilha p2;
+    p.copia_pilha(&p2,x,y,z,0);
     cout << "x\t" << "y\t" << "z\t" << "Valor esperado" << endl;
-    for(int i=0;i<10;i++){
-        cout << x[i]<< "\t" << y[i] << "\t" << z[i] << "\t" << valor_esperado[i] << endl;
-    }
-
+    //for(int i=0;i<10;i++){
+    //    cout << x[i]<< "\t" << y[i] << "\t" << z[i] << "\t" << valor_esperado[i] << endl;
+    //}
+    
+    cout << x[0]<< "\t" << y[0] << "\t" << z[0] << "\t" << valor_esperado[0] << endl;
     p.imprime_pilha();
     p2.imprime_pilha();
 

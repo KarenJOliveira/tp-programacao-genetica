@@ -49,7 +49,11 @@ bool Pilha::vazia(){
 
 No* Pilha::aloca_pilha(){
     if(cont < MAX_PILHA){
-        return &this->pilha[cont++];
+        if(cont == 0){
+            cont++;
+            return &pilha[0];
+        }
+        return &pilha[cont++];
     }
     return NULL;
 }
@@ -57,7 +61,7 @@ void Pilha::empilha(char data){
 
     No *aux = aloca_pilha();
     aux->info = data;
-    aux->prox = aloca_pilha();
+    //aux->prox = aloca_pilha();
     topo->prox = aux;
     topo = aux;
 }
@@ -75,55 +79,48 @@ void Pilha::desempilha(){
 
 
 void Pilha::copia_pilha(Pilha *p2){
-    Pilha *aux;
-    
-    while(!vazia()){
-        char c = topo->info;
-        //aux e p2 empilham só o primeiro valor da Pilha inicial
-        aux->empilha(c); 
-        p2->empilha(c);
-        
-        desempilha();
-    }
-    
-
-    while(!aux->vazia()){ 
-        cout << "aaaaaaaaaaaa" <<endl; // código chega até aqui
-        char c = aux->topo->info;
-        empilha(c);
-        cout << "bbbbbbbbb" <<endl;
-        aux->desempilha();
+    int i = 0;
+    while(i < cont){
+        p2->empilha(pilha[i].info);
+        i++;
     }
 }
 /*
 void Pilha::substitui_var(int *x,int *y, int *z, int lin){
-    Pilha aux;
-    while(!vazia()){
-        char c = topo->info;
-        if(ehOperador(c)){
-            aux.empilha(c);
+    if(ehOperador(pilha[i].info)){
+            p2->empilha(pilha[i].info);
         }else{
             
-            switch (c)
+            switch (pilha[i].info)
             {
             case 'x':
-                aux.empilha(static_cast<char>(x[lin]));
+            {
+                char p = static_cast<char>(x[lin]);
+                p2->empilha(p);
                 break;
+            }
             
             case 'y':
-                aux.empilha(static_cast<char>(y[lin]));
+            {
+                char p = static_cast<char>(y[lin]);
+                p2->empilha(p);
                 break;
+            }
             
             case 'z':
-                aux.empilha(static_cast<char>(z[lin]));
+            {
+                char p = static_cast<char>(z[lin]);
+                p2->empilha(p);
                 break;
+            }
             
             default:
                 break;
             }
         }
-        desempilha();
+        i++;
     }
+}
 
     while(!aux.vazia()){
         char c = aux.topo->info;
