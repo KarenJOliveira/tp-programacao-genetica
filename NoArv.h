@@ -1,8 +1,8 @@
-
+#include "Pilha.h"
 #include <iostream>
 #include <random>
-#define MAX_ALT 4
-#define MAX 100
+#define MAX_ALT 6
+#define MAX 1000
 using namespace std;
 
 typedef struct NoArv
@@ -23,7 +23,7 @@ typedef struct Arv
 {
     NoArv *raiz;
 
-    NoArv nos[MAX]; //
+    NoArv nos[MAX]; // vetor que armazena os nós
     int cont; // quantidade de nós no vetor N-1
 
     Arv(){
@@ -33,8 +33,9 @@ typedef struct Arv
     NoArv* aloca_no();
     void imprime();
     void auxImprime(NoArv *no);
-    void implementa(char *operadores, char *variaveis);
-    void auxImplementa(NoArv *no,int altura, char *operadores, char *variaveis);
+    
+    void implementa(NoArv *no,int altura, char *operadores, char *variaveis, int size_op, int size_var);
+    void empilha_arv(NoArv *no,Pilha *p);
 
 }Arv;
 
@@ -57,35 +58,39 @@ void Arv::auxImprime(NoArv *no){
         auxImprime(no->filho_direita);
         cout << no->info << " ";
     }
-    cout << endl;
 }
-void Arv::implementa(char *operadores, char *variaveis){
-    raiz->info = operadores[rand()%4];
-    auxImplementa(raiz,0,operadores,variaveis);
-}
-void Arv::auxImplementa(NoArv *no,int altura, char *operadores, char *variaveis)
+
+void Arv::implementa(NoArv *no,int altura, char *operadores, char *variaveis, int size_op, int size_var)
 {
     if(altura == MAX_ALT){
         
-        no->info = operadores[rand()%4];
+        no->info = operadores[rand()%size_op];
         no->filho_esquerda = aloca_no();
         no->filho_direita = aloca_no();
-        no->filho_esquerda->info = variaveis[rand()%3];
-        no->filho_direita->info = variaveis[rand()%3];
+        no->filho_esquerda->info = variaveis[rand()%size_var];
+        no->filho_direita->info = variaveis[rand()%size_var];
         return;
     }
 
+    if(rand()%100 > 40){
+        no->info = operadores[rand()%size_op];
+    }else{
+        no->info = variaveis[rand()%size_var];
+        return;
+    }
     no->filho_esquerda = aloca_no();
     no->filho_direita = aloca_no();
-    if(rand()%100 < 40){
-        no->filho_esquerda->info = variaveis[rand()%3];
-        no->filho_direita->info = variaveis[rand()%3];
+
+    implementa(no->filho_esquerda,altura+1,operadores,variaveis,size_op,size_var);
+    implementa(no->filho_direita,altura+1,operadores,variaveis,size_op,size_var);
+}
+
+void Arv::empilha_arv(NoArv *no,Pilha *p){
+    if(no == NULL){
         return;
     }
 
-    no->filho_esquerda->info = operadores[rand()%3];
-    no->filho_direita->info = operadores[rand()%3];
-
-    auxImplementa(no->filho_esquerda,altura+1,operadores,variaveis);
-    auxImplementa(no->filho_direita,altura+1,operadores,variaveis);
+    empilha_arv(no->filho_esquerda,p);
+    empilha_arv(no->filho_direita,p);
+    p->empilha(no->info);
 }
