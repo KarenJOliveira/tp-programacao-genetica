@@ -48,7 +48,7 @@ void Pilha::imprime_pilha(){
 }
 
 bool Pilha::vazia(){
-    if(topo == NULL)
+    if(cont < 0)
         return true;
 
     return false;
