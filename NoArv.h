@@ -11,12 +11,14 @@ typedef struct NoArv
     char info;
     NoArv *filho_esquerda;
     NoArv *filho_direita;
-
+    bool ehOperador;
     NoArv(){
         info = '\0';
+        ehOperador = false;
         filho_esquerda = NULL;
         filho_direita = NULL;
     };
+
 }NoArv;
 
 typedef struct Arv
@@ -65,6 +67,7 @@ void Arv::implementa(NoArv *no,int altura, char *operadores, char *variaveis, in
     if(altura == MAX_ALT){
         
         no->info = operadores[rand()%size_op];
+        no->ehOperador = true;
         no->filho_esquerda = aloca_no();
         no->filho_direita = aloca_no();
         no->filho_esquerda->info = variaveis[rand()%size_var];
@@ -74,6 +77,7 @@ void Arv::implementa(NoArv *no,int altura, char *operadores, char *variaveis, in
 
     if(rand()%100 > 40){
         no->info = operadores[rand()%size_op];
+        no->ehOperador = true;
     }else{
         no->info = variaveis[rand()%size_var];
         return;
@@ -92,5 +96,16 @@ void Arv::empilha_arv(NoArv *no,Pilha *p){
 
     empilha_arv(no->filho_esquerda,p);
     empilha_arv(no->filho_direita,p);
-    p->empilha(no->info);
+
+    if(no->ehOperador){
+        Item aux;
+        aux.n = static_cast<float>(no->info);
+        aux.ehOperador = true;
+        p->empilha(aux);
+    }else{
+        Item aux;
+        aux.n = static_cast<float>(no->info);
+        aux.ehOperador = false;
+        p->empilha(aux);
+    }
 }
