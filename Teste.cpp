@@ -52,8 +52,9 @@ void leArquivo(int *x,int *y,int *z,float *esperado){
 
 int main(){
 
-    Arv arv;
+    Arv arv(6);
 
+    Arv* arvores[MAX];
     char operadores[4] = {'+', '-', '*', '/'};
     char variaveis[3] = {'x', 'y', 'z'};
     int size_op = sizeof(operadores)/sizeof(operadores[0]);
@@ -61,7 +62,7 @@ int main(){
 
     srand(98);
     arv.implementa(arv.raiz,0,operadores,variaveis,size_op,size_var);
-    
+    arvores[0] = &arv;
     Pilha p;
     arv.empilha_arv(arv.raiz,&p);
     
@@ -69,20 +70,24 @@ int main(){
     int y[10];
     int z[10];
     float valor_esperado[10];
+    float resultado[10];
     
     arv.imprime();
     cout << endl;
     leArquivo(x,y,z,valor_esperado);
     
-    cout << "x\t" << "y\t" << "z\t" << "Valor esperado" << endl;
-    //for(int i=0;i<10;i++){
-    //    cout << x[i]<< "\t" << y[i] << "\t" << z[i] << "\t" << valor_esperado[i] << endl;
-    //}
+    //cout << "x\t" << "y\t" << "z\t" << "Valor esperado" << endl;
     
-    cout << x[0]<< "\t" << y[0] << "\t" << z[0] << "\t" << valor_esperado[0] << endl;
+    //cout << x[0]<< "\t" << y[0] << "\t" << z[0] << "\t" << valor_esperado[0] << endl;
     p.imprime_pilha();
 
-    valor_esperado[0] = p.resolve_operacoes(x[0],y[0],z[0]);
-    cout << valor_esperado[0] << endl;
+    Arv sub_arv1(3);
+    sub_arv1.implementa(sub_arv1.raiz,0,operadores,variaveis,size_op,size_var);
+    arvores[1] = &sub_arv1;
+    Pilha p1;
+    sub_arv1.empilha_arv(sub_arv1.raiz,&p1);
+    p1.imprime_pilha();
+    //resultado[0] = p.resolve_operacoes(x[0],y[0],z[0]);
+    //cout << resultado[0] << endl;
     return 0;
 }
