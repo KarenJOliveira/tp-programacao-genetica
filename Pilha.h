@@ -1,9 +1,11 @@
 #include <iostream>
+#include "Fila.h"
 #define MAX_PILHA 1500
 using namespace std;
 
 typedef struct Item{
     float n;
+    int pos;
     bool ehOperador;
     Item(){
         n = 0;
@@ -34,6 +36,10 @@ typedef struct Pilha{
         float resolve_operacoes(int x,int y,int z);
         void imprime_pilha();
         No* aloca_pilha();
+        void removeK(int k);
+        void insereK(int k,No* novo);
+        No* procura_no(int pos);
+        void muta_pilha(Pilha sub, int k);
         
 }Pilha;
 
@@ -169,4 +175,54 @@ float Pilha::resolve_operacoes(int x,int y,int z){
     }
     float resultado = aux.desempilha().n;
     return resultado;
+}
+
+
+void Pilha::insereK(int k,No *novo){
+    if(cont < MAX_PILHA){
+        for(int i = cont; i > k; i--){
+            pilha[i] = pilha[i-1];
+        }
+        pilha[k].info = novo->info;
+
+    }
+    else{
+        cout << "Erro: vetor cheio" << endl;
+    }
+}
+
+void Pilha::removeK(int k){
+    for(int i = k; i < cont-1; i++){
+        pilha[i] = pilha[i+1];
+    }
+    cont--;
+}
+
+No* Pilha::procura_no(int pos){
+    if(!vazia())
+    {
+        Pilha p2;
+        copia_pilha(&p2);
+        
+        while(!p2.vazia()){
+            Item aux = p2.desempilha();
+            if(aux.pos == pos){
+                return &pilha[pos];
+            }
+        }
+
+    }
+    return NULL;
+}
+
+void Pilha::muta_pilha(Pilha sub, int k){
+
+    No *no_aux = procura_no(k);
+    int i = 0;
+    while(!sub.vazia()){
+        Item aux = sub.desempilha();
+        insereK(k,&sub.pilha[i]);
+        i++;
+    }
+    
 }
