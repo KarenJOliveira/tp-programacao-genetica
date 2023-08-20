@@ -1,5 +1,4 @@
 #include "Pilha.h"
-#include "Fila.h"
 #include <iostream>
 #include <random>
 #include <vector>
@@ -46,12 +45,8 @@ typedef struct Arv
     
     void implementa(NoArv *no,int altura, char *operadores, char *variaveis, int size_op, int size_var);
     void empilha_arv(NoArv *no,Pilha *p);
-    void enfileira_arv(NoArv *no, Fila *fila);
+    
     int contaNos(NoArv *no);
-    NoArv* procura_no(int pos);
-    void insereK(int k,NoArv* novo);
-    void removeK(int k);
-    void mutacao(Arv *sub_arv);
     void muta_arvore(NoArv *no, Arv *sub_arv, int idx);
 }Arv;
 
@@ -137,33 +132,6 @@ void Arv::empilha_arv(NoArv *no,Pilha *p){
     }
 }
 
-void Arv::enfileira_arv(NoArv *no, Fila *fila){
-    if(no == NULL){
-        return;
-    }   
-
-    enfileira_arv(no->filho_esquerda,fila);
-    enfileira_arv(no->filho_direita,fila);
-    
-    fila->enfileira(no->idx);
-}
-
-NoArv* Arv::procura_no(int pos){
-    if(raiz != NULL)
-    {
-        Fila f;
-        enfileira_arv(raiz, &f);
-        while(!f.vazia())
-        {
-            int aux = f.desenfileira();
-            if(aux == pos){
-                return &nos[aux];
-            }
-        }
-    }
-    return NULL;
-}
-
 int Arv::contaNos(NoArv *no)
 {
     if(no != NULL)
@@ -171,54 +139,9 @@ int Arv::contaNos(NoArv *no)
     else
         return 0;
 }
-void Arv::insereK(int k,NoArv* novo){
-    if(cont < MAX){
-        for(int i = cont; i > k; i--){
-            nos[i] = nos[i-1];
-        }
-        novo = &nos[k];
-    }
-    else{
-        cout << "Erro: vetor cheio" << endl;
-    }
-
-}
-void Arv::removeK(int k){
-    for(int i = k; i < cont-1; i++){
-        nos[i] = nos[i+1];
-    }
-    cont--;
-}
-
-void Arv::mutacao(Arv *sub_arv){
-    int rand_idx = rand()%cont;
-    NoArv *no = procura_no(rand_idx);
-    muta_arvore(no,sub_arv,rand_idx);
-}
 
 void Arv::muta_arvore(NoArv *no, Arv *sub_arv, int idx)
 {
     int aux = contaNos(no);
     int aux2 = contaNos(sub_arv->raiz);
-    if(aux < aux2){
-        int qnt = aux2 - aux;
-        for(int i = 0; i < qnt; i++){
-            insereK(idx,&sub_arv->nos[i]);
-        }
-    }else if(aux > aux2){
-        int qnt = aux - aux2;
-        for(int i = 0; i < qnt; i++){
-            insereK(idx+i,&sub_arv->nos[i]);
-        }
-        int pos = idx+aux2;
-        for(int i = 0; i < qnt; i++){
-            removeK(pos+i);
-        }
-    }
-    else{
-        for(int i = 0; i < aux; i++){
-            insereK(idx+i,&sub_arv->nos[i]);
-        }
-    }
-    libera(no);
 }

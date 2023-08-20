@@ -1,5 +1,4 @@
 #include <iostream>
-#include "Fila.h"
 #define MAX_PILHA 1500
 using namespace std;
 
@@ -38,7 +37,6 @@ typedef struct Pilha{
         No* aloca_pilha();
         void removeK(int k);
         void insereK(int k,No* novo);
-        No* procura_no(int pos);
         void muta_pilha(Pilha sub, int k);
         
 }Pilha;
@@ -198,31 +196,20 @@ void Pilha::removeK(int k){
     cont--;
 }
 
-No* Pilha::procura_no(int pos){
-    if(!vazia())
-    {
-        Pilha p2;
-        copia_pilha(&p2);
-        
-        while(!p2.vazia()){
-            Item aux = p2.desempilha();
-            if(aux.pos == pos){
-                return &pilha[pos];
-            }
-        }
-
-    }
-    return NULL;
-}
-
 void Pilha::muta_pilha(Pilha sub, int k){
 
-    No *no_aux = procura_no(k);
     int i = 0;
     while(!sub.vazia()){
         Item aux = sub.desempilha();
         insereK(k,&sub.pilha[i]);
         i++;
     }
-    
+    int pos = k+i;
+    if(cont > sub.cont){
+        int qnt = cont - sub.cont;
+        for (int i = 0; i < qnt; i++)
+        {
+            removeK(pos+i);
+        } 
+    }
 }
