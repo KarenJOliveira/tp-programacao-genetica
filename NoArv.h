@@ -58,8 +58,9 @@ typedef struct Arv
     void remove(NoArv *sub_raiz, int val);
     NoArv* auxRemove(NoArv *no_atual, NoArv *novo, int idx);
     void muta_arvore(Arv *sub_arv);
-
+    void troca_indices(NoArv *no, int novo_idx);
     void recombina_arvore(Arv *nova);
+    NoArv* aux_procura(NoArv *atual, int idx, char *c);
 }Arv;
 
 
@@ -180,8 +181,9 @@ NoArv* Arv::auxRemove(NoArv *no_atual, NoArv *novo, int idx)
         cout << endl;
 
         //libera(aux);
-        no_atual->filho_direita = novo;
 
+        no_atual->filho_direita = novo;
+        
         return no_atual;
     }
 
@@ -189,25 +191,66 @@ NoArv* Arv::auxRemove(NoArv *no_atual, NoArv *novo, int idx)
     no_atual->filho_direita = auxRemove(no_atual->filho_direita,novo,idx);
     return no_atual;
 }
-
+void Arv::troca_indices(NoArv *no, int novo_idx){
+    if(no != NULL){
+        troca_indices(no->filho_esquerda, novo_idx++);
+        troca_indices(no->filho_direita, novo_idx++);
+        no->idx = novo_idx;
+    }
+}
 
 void Arv::muta_arvore(Arv *sub_arv)
 {
     int rand_ = rand()%(cont-1);
+    troca_indices(sub_arv->raiz, rand_);
     remove(sub_arv->raiz, rand_);
     cont = contaNos(raiz);
 }
 
 void Arv::recombina_arvore(Arv *nova){
-    //selecionar uma sub-árvore da árvore principal
-    int rand_ = rand()%(cont-1);
-
+    //selecionar uma sub-árvore da principal
+    int rand_num = rand()%(cont-1);
+    NoArv *no_parental = raiz;
+    char c;
+    NoArv *sub1 = aux_procura(no_parental,rand_num,&c);
     //selecionar uma sub-árvore da nova árvore
-    int rand_ = rand()%(nova->cont-1);
+    int rand_num2 = rand()%(nova->cont-1);
+    NoArv *no_parental2 = nova->raiz;
+    char c2;
+    NoArv *sub2 = aux_procura(no_parental2,rand_num2,&c2);
     //guardar ponteiro para ambas
+
     //inserir sub-árvore da nova no local da sub-árvore da principal
     //inserir sub-árvore da principal no local da sub-árvore da nova
+    if(c == 'e'){
+        no_parental->filho_esquerda = sub2;
+    }else{
+        no_parental->filho_direita = sub2;
+    }
+    if(c2 == 'e'){
+        no_parental2->filho_esquerda = sub1;
+    }else{
+        no_parental2->filho_direita = sub1;
+    }
 }
+NoArv* Arv::aux_procura(NoArv *atual, int idx, char *c){
+    if(atual->filho_esquerda == NULL || atual->filho_direita == NULL){
+        return NULL;
+    }else if(atual->filho_esquerda->idx == idx){
+        *c = 'e';
+        return atual->filho_esquerda;
+    }else if(atual->filho_direita->idx == idx){
+        *c = 'd';
+        return atual->filho_direita;
+    }
+
+    atual = aux_procura(atual->filho_esquerda,idx, c);
+    atual = aux_procura(atual->filho_direita,idx, c);
+    return atual;
+}
+
+
+
 
 
 #endif //UNTITLED_NOARV_H
