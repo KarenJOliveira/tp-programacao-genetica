@@ -22,7 +22,7 @@ public:
     bool ehOperador;
     NoArv(){
         info = '\0';
-        idx = -1;
+        idx = 0;
         ehOperador = false;
         filho_esquerda = NULL;
         filho_direita = NULL;
@@ -61,6 +61,7 @@ typedef struct Arv
     void troca_indices(NoArv *no, int novo_idx);
     void recombina_arvore(Arv *nova);
     NoArv* aux_procura(NoArv *atual, int idx, char *c);
+    void implementaCopia(NoArv *aux,NoArv *atual, int idx);
 }Arv;
 
 
@@ -207,32 +208,51 @@ void Arv::muta_arvore(Arv *sub_arv)
     cont = contaNos(raiz);
 }
 
-void Arv::recombina_arvore(Arv *nova){
-    //selecionar uma sub-árvore da principal
-    int rand_num = rand()%(cont-1);
-    NoArv *no_parental = raiz;
-    char c;
-    NoArv *sub1 = aux_procura(no_parental,rand_num,&c);
-    //selecionar uma sub-árvore da nova árvore
-    int rand_num2 = rand()%(nova->cont-1);
-    NoArv *no_parental2 = nova->raiz;
-    char c2;
-    NoArv *sub2 = aux_procura(no_parental2,rand_num2,&c2);
-    //guardar ponteiro para ambas
 
-    //inserir sub-árvore da nova no local da sub-árvore da principal
-    //inserir sub-árvore da principal no local da sub-árvore da nova
-    if(c == 'e'){
-        no_parental->filho_esquerda = sub2;
-    }else{
-        no_parental->filho_direita = sub2;
+void Arv::implementaCopia(NoArv *aux,NoArv *atual, int idx)
+{
+    if(atual == NULL){
+        return;
     }
-    if(c2 == 'e'){
-        no_parental2->filho_esquerda = sub1;
-    }else{
-        no_parental2->filho_direita = sub1;
+    else if(atual->idx == idx){
+        return;
     }
+    
+    aux->info = atual->info;
+        
+    aux->filho_esquerda = aloca_no();
+    aux->filho_direita = aloca_no();
+
+    implementaCopia(aux->filho_esquerda, atual->filho_esquerda, idx);
+    implementaCopia(aux->filho_direita, atual->filho_direita, idx);
 }
+
+void Arv::recombina_arvore(Arv *nova){
+    Arv *aux1 = new Arv(20);
+    Arv *aux2 = new Arv(20);
+
+    int rand1 = rand()%(cont-1);
+    int rand2 = rand()%(nova->cont-1);
+    NoArv *no1 = raiz;
+    NoArv *no2 = nova->raiz;
+    implementaCopia(aux1->raiz,no1,rand1);
+    implementaCopia(aux2->raiz,no2,rand2);
+
+    implementaCopia(no1,no2,0);
+    implementaCopia(no2,no1,0);
+
+    troca_indices(no2, rand2);
+    troca_indices(no1, rand1);
+
+    //remove();
+    aux1->cont = contaNos(aux1->raiz);
+    aux2->cont = contaNos(aux2->raiz);
+    delete aux1;
+    delete aux2;
+}
+
+
+
 NoArv* Arv::aux_procura(NoArv *atual, int idx, char *c){
     if(atual->filho_esquerda == NULL || atual->filho_direita == NULL){
         return NULL;
