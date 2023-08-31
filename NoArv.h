@@ -52,16 +52,16 @@ typedef struct Arv
 
     void implementa(NoArv *no,int altura, char *operadores, char *variaveis, int size_op, int size_var);
     void empilha_arv(NoArv *no,Pilha *p);
-
+    void implementa_copia(NoArv *no_copia,NoArv *original,int idx);
+    void complementa_copia(NoArv *no_copia,NoArv *original);
     int contaNos(NoArv *no);
 
     void remove(NoArv *sub_raiz, int val);
     NoArv* auxRemove(NoArv *no_atual, NoArv *novo, int idx);
     void muta_arvore(Arv *sub_arv);
     void troca_indices(NoArv *no, int novo_idx);
-    void recombina_arvore(Arv *nova);
+    
     NoArv* aux_procura(NoArv *atual, int idx, char *c);
-    void implementaCopia(NoArv *aux,NoArv *atual, int idx);
 }Arv;
 
 
@@ -147,6 +147,48 @@ void Arv::empilha_arv(NoArv *no,Pilha *p){
     }
 }
 
+
+void Arv::implementa_copia(NoArv *no_copia,NoArv *original,int idx)
+{
+    if(original->filho_esquerda == NULL && original->filho_direita == NULL){
+        no_copia->info = original->info;
+        return;
+    }else if(original->idx == idx || original->idx == (2*idx+1) || original->idx == (2*idx+2)){
+        return;
+    }else{
+        no_copia->info = original->info;
+
+        no_copia->filho_esquerda = this->aloca_no();
+        no_copia->filho_direita = this->aloca_no();
+   
+        implementa_copia(no_copia->filho_esquerda,original->filho_esquerda, idx);
+        implementa_copia(no_copia->filho_direita,original->filho_direita, idx);
+    }
+    return;
+}
+
+void Arv::complementa_copia(NoArv *no_copia,NoArv *original)
+{
+    if(original == NULL){
+        return;
+    }else{
+        if(original->filho_esquerda == NULL && original->filho_direita == NULL){
+            no_copia->info = original->info;
+        }else{
+            no_copia->info = original->info;
+            no_copia->filho_esquerda = this->aloca_no();
+            no_copia->filho_direita = this->aloca_no();
+        }
+            
+        complementa_copia(no_copia->filho_esquerda, original->filho_esquerda);
+        complementa_copia(no_copia->filho_direita, original->filho_direita);
+    }
+
+   
+    return;
+}
+
+
 int Arv::contaNos(NoArv *no)
 {
     if(no != NULL)
@@ -206,49 +248,6 @@ void Arv::muta_arvore(Arv *sub_arv)
     troca_indices(sub_arv->raiz, rand_);
     remove(sub_arv->raiz, rand_);
     cont = contaNos(raiz);
-}
-
-
-void Arv::implementaCopia(NoArv *aux,NoArv *atual, int idx)
-{
-    if(atual == NULL){
-        return;
-    }
-    else if(atual->idx == idx){
-        return;
-    }
-    
-    aux->info = atual->info;
-        
-    aux->filho_esquerda = aloca_no();
-    aux->filho_direita = aloca_no();
-
-    implementaCopia(aux->filho_esquerda, atual->filho_esquerda, idx);
-    implementaCopia(aux->filho_direita, atual->filho_direita, idx);
-}
-
-void Arv::recombina_arvore(Arv *nova){
-    Arv *aux1 = new Arv(20);
-    Arv *aux2 = new Arv(20);
-
-    int rand1 = rand()%(cont-1);
-    int rand2 = rand()%(nova->cont-1);
-    NoArv *no1 = raiz;
-    NoArv *no2 = nova->raiz;
-    implementaCopia(aux1->raiz,no1,rand1);
-    implementaCopia(aux2->raiz,no2,rand2);
-
-    implementaCopia(no1,no2,0);
-    implementaCopia(no2,no1,0);
-
-    troca_indices(no2, rand2);
-    troca_indices(no1, rand1);
-
-    //remove();
-    aux1->cont = contaNos(aux1->raiz);
-    aux2->cont = contaNos(aux2->raiz);
-    delete aux1;
-    delete aux2;
 }
 
 
