@@ -39,12 +39,14 @@ typedef struct Arv
     int altura_max;
 
 
-    Arv(int max_alt){
+    Arv(){
         raiz = nos;
         cont = 0;
-        altura_max = max_alt;
     }
 
+    void setAlturaMax(int altura){
+        altura_max = altura;
+    }
     NoArv* aloca_no();
     void libera(NoArv *no);
     void imprime();

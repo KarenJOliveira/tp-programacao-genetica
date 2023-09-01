@@ -50,41 +50,91 @@ void leArquivo(int *x,int *y,int *z,float *esperado){
     return;
 }
 
+Arv* inicializa_pop(int size_pop, int seed, char *operadores, char *variaveis, int size_op, int size_var){
+    Arv* pop = new Arv[size_pop];
+    srand(seed);
+    for (int i = 0; i < size_pop; i++)
+    {
+        int rand_ = rand()%10;
+        pop[i].setAlturaMax(rand_);
+        pop[i].implementa(pop[i].raiz,0,operadores,variaveis,size_op,size_var);
+    }
+    return pop;
+}
 
+void recombina_arvores(Arv* arvores, Arv *recombinadas,int size_pop, int seed){
+    srand(seed);
+    int i = 0;
+    int rand_altura;
+    int rand_no2;
+    int rand_no;
+    int rand_arv2;
+    int rand_arv;
 
-void recombina_arvore(Arv *arv1, Arv *arv2, Arv *rec1, Arv *rec2){
-    int rand1 = rand()%(arv1->cont-1);
-    //int rand2 = rand()%(arv2->cont-1);
-    
-    //aux_recombina(rec1,rec1->raiz,arv1->raiz,rand1);
+    while(i < size_pop){
+        rand_arv = rand()%size_pop;
+        rand_arv2 = rand()%size_pop;
+
+        rand_no = rand()%(arvores[rand_arv].cont-1);
+        rand_no2 = rand()%(arvores[rand_arv2].cont-1);
+
+        rand_altura = rand()%10;
+
+        recombinadas[i].setAlturaMax(rand_altura);
+        recombinadas[i+1].setAlturaMax(rand_altura);
+        recombinadas[i].implementa_copia(recombinadas[i].raiz,arvores[rand_arv].raiz,rand_no);
+        recombinadas[i+1].implementa_copia(recombinadas[i+1].raiz,arvores[rand_arv2].raiz,rand_no2);
+
+        recombinadas[i].complementa_copia(&recombinadas[i].nos[rand_no],&arvores[rand_arv2].nos[rand_no2]);
+        recombinadas[i+1].complementa_copia(&recombinadas[i+1].nos[rand_no2],&arvores[rand_arv].nos[rand_no]);
+
+        i+=2;
+    }
 }
 
 int main(){
 
-    Arv arv(6);
 
-    Arv* arvores[MAX];
+    Arv* arvores;
     char operadores[4] = {'+', '-', '*', '/'};
     char variaveis[3] = {'x', 'y', 'z'};
     int size_op = sizeof(operadores)/sizeof(operadores[0]);
     int size_var = sizeof(variaveis)/sizeof(variaveis[0]);
-
-    srand(98);
-    arv.implementa(arv.raiz,0,operadores,variaveis,size_op,size_var);
-    arvores[0] = &arv;
-    Pilha p;
-    arv.empilha_arv(arv.raiz,&p);
-
+    
+    arvores = inicializa_pop(100, 98, operadores, variaveis, size_op, size_var);
     int x[10];
     int y[10];
     int z[10];
     float valor_esperado[10];
     float resultado[10];
 
+    Arv *recombinadas = new Arv[100];
+    recombina_arvores(arvores,recombinadas,100,98);
+
+    for(int i=0;i<4;i++){
+        cout << "Arvore " << i << endl;
+        arvores[i].imprime();
+        cout << endl;
+    }
+    for(int i=0;i<4;i++){
+        cout << "Arvore recombinada: " << i << endl;
+        recombinadas[i].imprime();
+        cout << endl;
+    }
+
+/*
+    srand(98);
+    Arv arv;
+    arv.setAlturaMax(6);
+    arv.implementa(arv.raiz,0,operadores,variaveis,size_op,size_var);
+    arvores[0] = &arv;
+    Pilha p;
+    arv.empilha_arv(arv.raiz,&p);
+
     arv.imprime();
     cout << endl;
     leArquivo(x,y,z,valor_esperado);
-/*
+
     cout << "x\t" << "y\t" << "z\t" << "Valor esperado" << endl;
     cout << x[0]<< "\t" << y[0] << "\t" << z[0] << "\t" << valor_esperado[0] << endl;
 
@@ -97,41 +147,46 @@ int main(){
     cout << "Sub-arvore nova: " << endl;
     sub_arv1.imprime();
     cout << endl;
-*/
+
 
     cout << "Arvore original: " << endl;
     arv.imprime();
     cout << endl;
-/*
+
     arv.muta_arvore(&sub_arv1);
     cout << "Arvore mutada: " << endl;
     arv.imprime();
     cout << endl;
 
-    Arv arv2(20);
+    Arv arv2;
+    arv2.setAlturaMax(6);
     arv2.implementa(arv2.raiz,0,operadores,variaveis,size_op,size_var);
     arvores[2] = &arv2;
     cout << "Arvore nova I: " << endl;
     arv2.imprime();
     cout << endl;
 
-    Arv arv3(20);
+    Arv arv3;
+    arv3.setAlturaMax(6);
     arv3.implementa(arv3.raiz,0,operadores,variaveis,size_op,size_var);
     arvores[3] = &arv3;
     cout << "Arvore nova II: " << endl;
     arv3.imprime();
     cout << endl;
-*/
-    Arv arv4(20);
+
+    Arv arv4;
+    arv4.setAlturaMax(6);
     arv4.implementa(arv4.raiz,0,operadores,variaveis,size_op,size_var);
     arvores[4] = &arv4;
     cout << "Arvore nova III: " << endl;
     arv4.imprime();
     cout << endl;
 
-    Arv aux1(20);
+    Arv aux1;
+    aux1.setAlturaMax(6);
     arvores[5] = &aux1;
-    Arv aux2(20);
+    Arv aux2;
+    aux2.setAlturaMax(6);
     arvores[6] = &aux2;
 
     int rand1 = rand()%(arv.cont-1);
@@ -148,10 +203,12 @@ int main(){
     cout << "Arvore recombinada II: " << endl;
     aux2.imprime();
     cout << endl;
-/*
-    Arv aux3(20);
+
+    Arv aux3;
+    aux3.setAlturaMax(6);
     arvores[7] = &aux3;
-    Arv aux4(20);
+    Arv aux4;
+    aux4.setAlturaMax(6);
     arvores[8] = &aux4;
 
     int rand3 = rand()%(arv.cont-1);
