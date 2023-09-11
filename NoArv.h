@@ -38,10 +38,12 @@ typedef struct Arv
     int cont; // quantidade de nós no vetor N-1
     int altura_max;
 
+    float aptidao;
 
     Arv(){
         raiz = nos;
         cont = 0;
+        altura_max = 0;
     }
 
     void setAlturaMax(int altura){
@@ -56,6 +58,7 @@ typedef struct Arv
     void empilha_arv(NoArv *no,Pilha *p);
     void implementa_copia(NoArv *no_copia,NoArv *original,int idx);
     void complementa_copia(NoArv *no_copia,NoArv *original);
+    void calcula_aptidao(int *x, int *y, int *z, float *valor_esperado, int qnt_valores);
     int contaNos(NoArv *no);
 
     void remove(NoArv *sub_raiz, int val);
@@ -190,6 +193,22 @@ void Arv::complementa_copia(NoArv *no_copia,NoArv *original)
     return;
 }
 
+void Arv::calcula_aptidao(int *x, int *y, int *z, float *valor_esperado, int qnt_valores){
+    Pilha *p = new Pilha;
+    this->empilha_arv(this->raiz,p);
+    int resultado = 0;
+    int somatorio = 0;
+
+    for(int i=0;i<qnt_valores;i++){
+        cout << "x\t" << "y\t" << "z\t" << "Valor esperado" << endl;
+        cout << x[i]<< "\t" << y[i] << "\t" << z[i] << "\t" << valor_esperado[i] << endl;
+        resultado = p->resolve_operacoes(x[i],y[i],z[i]);
+        cout << "Resultado do cálculo das operações: "<< resultado << endl;
+        somatorio += pow((valor_esperado[i] - resultado),2);
+    }
+
+    this->aptidao = somatorio;
+}
 
 int Arv::contaNos(NoArv *no)
 {
