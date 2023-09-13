@@ -69,9 +69,13 @@ void recombina_arvores(Arv** arvores, Arv **recombinadas,int size_pop, int seed)
         arvores[rand_arv2]->imprime();
         cout << endl;
 
+        cout << "Nós selecionados para recombinação: " << endl;
         rand_no = rand()%(arvores[rand_arv]->cont+1);
+        arvores[rand_arv]->auxImprime(&arvores[rand_arv]->nos[rand_no]);
+        cout << endl;
         rand_no2 = rand()%(arvores[rand_arv2]->cont+1);
-
+        arvores[rand_arv2]->auxImprime(&arvores[rand_arv2]->nos[rand_no2]);
+        cout << endl;
         rand_altura = rand()%10;
 
         recombinadas[i] = new Arv;
@@ -141,6 +145,11 @@ int main(){
         cout << "Aptidão obtida pela arvore " << i << ": "<< pop_inicial[i]->aptidao << endl;
     }
     
+    //configurar mutação
+    //configurar recombinação para pequenas árvores
+    //conferir se cálculo esta sendo feito corretamente
+    //conferir se a aptidao esta sendo calculada corretamente
+
 
 /*
     srand(98);

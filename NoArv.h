@@ -208,6 +208,7 @@ void Arv::calcula_aptidao(int *x, int *y, int *z, float *valor_esperado, int qnt
     }
 
     this->aptidao = somatorio;
+    delete p;
 }
 
 int Arv::contaNos(NoArv *no)
