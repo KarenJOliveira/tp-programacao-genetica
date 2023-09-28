@@ -2,6 +2,7 @@
 // Created by karen on 20/08/2023.
 //
 #include "NoArv.h"
+#include "Fila.h"
 #include <iostream>
 #include <math.h>
 #include <utility>
@@ -50,52 +51,71 @@ void leArquivo(int *x,int *y,int *z,float *esperado){
     return;
 }
 
-void recombina_arvores(Arv** arvores, Arv **recombinadas,int size_pop, int seed){
+void muta_arvore(Arv *arv_inicial, Arv* sub_arv, int rand_no)
+{
+    cout << "Arvore escolhida para mutação: " << endl;
+    arv_inicial->imprime();
+    cout << "Sub arvore escolhida para mutação: " << endl;
+    sub_arv->imprime();
+
+    arv_inicial->remove(sub_arv->raiz,rand_no);
+}
+
+void recombina_arvores(Arv *arv1, Arv *arv2,int size_pop, int seed){
     srand(seed);
-    int i = 0;
-    int rand_altura;
     int rand_no2;
     int rand_no;
-    int rand_arv2;
-    int rand_arv;
 
-    while(i < size_pop){
+    cout << "Arvores escolhidas para recombinação: " << endl;
+    arv1->imprime();
+    cout << endl;
+    arv2->imprime();
+    cout << endl;
 
-        rand_arv = rand()%size_pop;
-        rand_arv2 = rand()%size_pop;
-        cout << "Arvores escolhidas para recombinação: " << endl;
-        arvores[rand_arv]->imprime();
-        cout << endl;
-        arvores[rand_arv2]->imprime();
-        cout << endl;
+    cout << "Nós selecionados para recombinação: " << endl;
+    rand_no = rand()%(arv1->cont+1);
+    arv1->auxImprime(&arv1->nos[rand_no]);
+    cout << endl;
+    rand_no2 = rand()%(arv2->cont+1);
+    arv2->auxImprime(&arv2->nos[rand_no2]);
+    cout << endl;
 
-        cout << "Nós selecionados para recombinação: " << endl;
-        rand_no = rand()%(arvores[rand_arv]->cont+1);
-        arvores[rand_arv]->auxImprime(&arvores[rand_arv]->nos[rand_no]);
-        cout << endl;
-        rand_no2 = rand()%(arvores[rand_arv2]->cont+1);
-        arvores[rand_arv2]->auxImprime(&arvores[rand_arv2]->nos[rand_no2]);
-        cout << endl;
-        rand_altura = rand()%10;
+    arv1->setAlturaMax(15);
+    arv2->setAlturaMax(15);
+    Arv *sub1 = new Arv;
+    Arv *sub2 = new Arv;
 
-        recombinadas[i] = new Arv;
-        recombinadas[i+1] = new Arv;
-        recombinadas[i]->setAlturaMax(rand_altura);
-        recombinadas[i+1]->setAlturaMax(rand_altura);
-        recombinadas[i]->implementa_copia(recombinadas[i]->raiz,arvores[rand_arv]->raiz,rand_no);
-        recombinadas[i+1]->implementa_copia(recombinadas[i+1]->raiz,arvores[rand_arv2]->raiz,rand_no2);
+    arv1->copia_arvore(sub1,arv1->raiz,sub1->raiz);
+    arv2->copia_arvore(sub2,arv2->raiz,sub2->raiz);
+    arv1->remove(sub2->raiz,rand_no);
+    arv2->remove(sub1->raiz,rand_no2);
+    cout << "\nArvores recombinadas: " << endl;
+    arv1->imprime();
+    cout << endl;
+    arv2->imprime();
+    cout << endl;
 
-        recombinadas[i]->complementa_copia(&recombinadas[i]->nos[rand_no],&arvores[rand_arv2]->nos[rand_no2]);
-        recombinadas[i+1]->complementa_copia(&recombinadas[i+1]->nos[rand_no2],&arvores[rand_arv]->nos[rand_no]);
+}
 
-        cout << "\nArvores recombinadas: " << endl;
-        recombinadas[i]->imprime();
-        cout << endl;
-        recombinadas[i+1]->imprime();
-        cout << endl;
+//procurar qual o melhor elemento e colocar no vetor filho
 
-        i+=2;
+void evolucao(Arv **pop_inicial,Arv** primeira_geracao, int size_pop, int size_geracao){
+    int mais_eficiente = 0;
+    int menos_eficiente = 0;
+
+    for(int i = 0; i < size_pop; i++){
+        if(pop_inicial[i]->aptidao > pop_inicial[mais_eficiente]->aptidao){
+            mais_eficiente = i;
+        }
     }
+
+    for(int i = 0; i < size_geracao; i++){
+        if(primeira_geracao[i]->aptidao < primeira_geracao[menos_eficiente]->aptidao){
+            menos_eficiente = i;
+        }
+    }
+
+    primeira_geracao[menos_eficiente] = pop_inicial[mais_eficiente]; 
 }
 
 int main(){
@@ -106,81 +126,65 @@ int main(){
     char variaveis[3] = {'x', 'y', 'z'};
     int size_op = sizeof(operadores)/sizeof(operadores[0]);
     int size_var = sizeof(variaveis)/sizeof(variaveis[0]);
-    int size_pop = 10;
+    int size_pop = 50;
 
-
-    for (int i = 0; i < size_pop; i++)
-    {
-        int rand_alt = rand()%15;
-        pop_inicial[i] = new Arv;
-        pop_inicial[i]->setAlturaMax(rand_alt);
-        pop_inicial[i]->implementa(pop_inicial[i]->raiz,0,operadores,variaveis,size_op,size_var);
-    }
-
+    int seed = 65;
     int x[10];
     int y[10];
     int z[10];
     float valor_esperado[10];
-
-    Arv **recombinadas = new Arv*[100];
-    recombina_arvores(pop_inicial, recombinadas, size_pop,98);
-/*
-    for(int i=0;i<size_pop;i++){
-        cout << "Arvore " << i << endl;
-        pop_inicial[i]->imprime();
-        cout << endl;
-    }
-
-    for(int i=0;i<size_pop;i++){
-        cout << "Arvore recombinada: " << i << endl;
-        recombinadas[i]->imprime();
-        cout << endl;
-    }
-*/
     leArquivo(x,y,z,valor_esperado);
+
+
+    for (int i = 0; i < size_pop; i++)
+    {
+        pop_inicial[i] = new Arv;
+        pop_inicial[i]->altura_max = 15;
+        pop_inicial[i]->implementa(pop_inicial[i]->raiz,0,operadores,variaveis,size_op,size_var);
+    }
+
+    Arv **primeira_geracao = new Arv*[100];
+    for (int i = 0; i < size_pop; i++)
+    {
+        primeira_geracao[i] = new Arv;
+        pop_inicial[i]->copia_arvore(primeira_geracao[i],pop_inicial[i]->raiz,primeira_geracao[i]->raiz);
+    }
+    
+    int rand_arv; 
+    int rand_arv2; 
+    rand_arv = rand()%size_pop;
+    rand_arv2 = rand()%size_pop;
+
+    recombina_arvores(primeira_geracao[rand_arv], primeira_geracao[rand_arv2], size_pop,seed);
+
+
+    rand_arv = rand()%size_pop;
+    rand_arv2 = rand()%size_pop;
+    int rand_no = rand()%(primeira_geracao[rand_arv]->cont+1);
+    muta_arvore(primeira_geracao[rand_arv],primeira_geracao[rand_arv2],rand_no);
+
+/*
 
     for (int i = 0; i < size_pop; i++)
     {
         pop_inicial[i]->calcula_aptidao(x,y,z,valor_esperado,10);
         cout << "Aptidão obtida pela arvore " << i << ": "<< pop_inicial[i]->aptidao << endl;
     }
-    
+
+
+    for (int i = 0; i < size_pop; i++)
+    {
+        recombinadas[i]->calcula_aptidao(x,y,z,valor_esperado,10);
+        cout << "Aptidão obtida pela arvore recombinada " << i << ": "<< recombinadas[i]->aptidao << endl;
+    }
+
+ */   
+
     //configurar mutação
-    //configurar recombinação para pequenas árvores
+    
     //conferir se cálculo esta sendo feito corretamente
     //conferir se a aptidao esta sendo calculada corretamente
 
-
-/*
-    srand(98);
-    Arv arv;
-    arv.setAlturaMax(6);
-    arv.implementa(arv.raiz,0,operadores,variaveis,size_op,size_var);
-    arvores[0] = &arv;
-    Pilha p;
-    arv.empilha_arv(arv.raiz,&p);
-
-    arv.imprime();
-    cout << endl;
-
-    Arv sub_arv1;
-    sub_arv1.setAlturaMax(3);
-    sub_arv1.implementa(sub_arv1.raiz,0,operadores,variaveis,size_op,size_var);
-    arvores[1] = &sub_arv1;
-    cout << "Sub-arvore nova: " << endl;
-    sub_arv1.imprime();
-    cout << endl;
-
-
-    cout << "Arvore original: " << endl;
-    arv.imprime();
-    cout << endl;
-
-    arv.muta_arvore(&sub_arv1);
-    cout << "Arvore mutada: " << endl;
-    arv.imprime();
-    cout << endl;
-*/
 
     return 0;
 }

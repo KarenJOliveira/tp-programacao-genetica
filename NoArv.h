@@ -60,10 +60,11 @@ typedef struct Arv
     void complementa_copia(NoArv *no_copia,NoArv *original);
     void calcula_aptidao(int *x, int *y, int *z, float *valor_esperado, int qnt_valores);
     int contaNos(NoArv *no);
-
+    void copia_arvore(Arv *copia, NoArv *no_sub,NoArv *no_copia);
+    void aux_copia(Arv *copia, NoArv *no_copia, NoArv *no_original);
     void remove(NoArv *sub_raiz, int val);
     NoArv* auxRemove(NoArv *no_atual, NoArv *novo, int idx);
-    void muta_arvore(Arv *sub_arv);
+    //void muta_arvore(Arv *sub_arv);
     void troca_indices(NoArv *no, int novo_idx);
     
     NoArv* aux_procura(NoArv *atual, int idx, char *c);
@@ -193,6 +194,26 @@ void Arv::complementa_copia(NoArv *no_copia,NoArv *original)
     return;
 }
 
+void Arv::copia_arvore(Arv *copia, NoArv *no_original,NoArv *no_copia){
+    
+    
+    aux_copia(copia,no_copia,no_original);
+}
+
+void Arv::aux_copia(Arv *copia, NoArv *no_copia, NoArv *no_original){
+    if(no_original->filho_esquerda == NULL && no_original->filho_direita == NULL){
+        
+        no_copia->info = no_original->info;
+        return;
+    }
+    no_copia->filho_esquerda = copia->aloca_no();
+    no_copia->filho_direita = copia->aloca_no();
+    aux_copia(copia,no_copia->filho_esquerda,no_original->filho_esquerda);
+    aux_copia(copia,no_copia->filho_direita,no_original->filho_direita);
+
+    return;
+}
+
 void Arv::calcula_aptidao(int *x, int *y, int *z, float *valor_esperado, int qnt_valores){
     Pilha *p = new Pilha;
     this->empilha_arv(this->raiz,p);
@@ -229,7 +250,8 @@ NoArv* Arv::auxRemove(NoArv *no_atual, NoArv *novo, int idx)
 {
     if(no_atual->filho_esquerda == NULL || no_atual->filho_esquerda == NULL)
     {
-        return NULL;
+        no_atual = novo;
+        return no_atual;
     }
     else if(no_atual->filho_esquerda->idx == idx){
         NoArv *aux = no_atual->filho_esquerda;
@@ -256,6 +278,7 @@ NoArv* Arv::auxRemove(NoArv *no_atual, NoArv *novo, int idx)
     no_atual->filho_direita = auxRemove(no_atual->filho_direita,novo,idx);
     return no_atual;
 }
+
 void Arv::troca_indices(NoArv *no, int novo_idx){
     if(no != NULL){
         troca_indices(no->filho_esquerda, novo_idx++);
@@ -263,15 +286,6 @@ void Arv::troca_indices(NoArv *no, int novo_idx){
         no->idx = novo_idx;
     }
 }
-
-void Arv::muta_arvore(Arv *sub_arv)
-{
-    int rand_ = rand()%(cont-1);
-    troca_indices(sub_arv->raiz, rand_);
-    remove(sub_arv->raiz, rand_);
-    cont = contaNos(raiz);
-}
-
 
 
 NoArv* Arv::aux_procura(NoArv *atual, int idx, char *c){
