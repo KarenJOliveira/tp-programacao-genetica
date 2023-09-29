@@ -34,14 +34,14 @@ typedef struct Arv
 {
     NoArv *raiz;
 
-    NoArv nos[MAX]; // vetor que armazena os nós
+    //NoArv nos[MAX]; // vetor que armazena os nós
     int cont; // quantidade de nós no vetor N-1
     int altura_max;
 
     float aptidao;
 
     Arv(){
-        raiz = nos;
+        raiz = new NoArv;
         cont = 0;
         altura_max = 0;
     }
@@ -56,18 +56,15 @@ typedef struct Arv
 
     void implementa(NoArv *no,int altura, char *operadores, char *variaveis, int size_op, int size_var);
     void empilha_arv(NoArv *no,Pilha *p);
-    void implementa_copia(NoArv *no_copia,NoArv *original,int idx);
-    void complementa_copia(NoArv *no_copia,NoArv *original);
     void calcula_aptidao(int *x, int *y, int *z, float *valor_esperado, int qnt_valores);
     int contaNos(NoArv *no);
-    void copia_arvore(Arv *copia, NoArv *no_sub,NoArv *no_copia);
-    void aux_copia(Arv *copia, NoArv *no_copia, NoArv *no_original);
+    void copia_arvore(Arv *copia);
+    void aux_copia(Arv *arv_copia,NoArv *no_copia, NoArv *no_original);
     void remove(NoArv *sub_raiz, int val);
     NoArv* auxRemove(NoArv *no_atual, NoArv *novo, int idx);
-    //void muta_arvore(Arv *sub_arv);
+    NoArv* retorna_ponteiro(NoArv *no, int idx);
     void troca_indices(NoArv *no, int novo_idx);
     
-    NoArv* aux_procura(NoArv *atual, int idx, char *c);
 }Arv;
 
 
@@ -75,8 +72,11 @@ NoArv* Arv::aloca_no()
 {
     if(cont < MAX){
         cont++;
-        nos[cont].idx = cont;
-        return &nos[cont];
+        //nos[cont].idx = cont;
+        //return &nos[cont];
+        NoArv *no = new NoArv;
+        no->idx = cont;
+        return no;
     }
     return NULL;
 }
@@ -89,6 +89,7 @@ void Arv::auxImprime(NoArv *no){
     if(no != NULL){
         auxImprime(no->filho_esquerda);
         auxImprime(no->filho_direita);
+        
         cout << no->info << " ";
     }
 }
@@ -154,62 +155,27 @@ void Arv::empilha_arv(NoArv *no,Pilha *p){
 }
 
 
-void Arv::implementa_copia(NoArv *no_copia,NoArv *original,int idx)
-{
-    if(original->filho_esquerda == NULL && original->filho_direita == NULL){
-        no_copia->info = original->info;
-        return;
-    }else if(original->idx == idx || original->idx == (2*idx+1) || original->idx == (2*idx+2)){
-        return;
-    }else{
-        no_copia->info = original->info;
-
-        no_copia->filho_esquerda = this->aloca_no();
-        no_copia->filho_direita = this->aloca_no();
-   
-        implementa_copia(no_copia->filho_esquerda,original->filho_esquerda, idx);
-        implementa_copia(no_copia->filho_direita,original->filho_direita, idx);
-    }
-    return;
+void Arv::copia_arvore(Arv *copia){
+    
+    aux_copia(copia,copia->raiz,this->raiz);
 }
 
-void Arv::complementa_copia(NoArv *no_copia,NoArv *original)
-{
-    if(original == NULL){
+void Arv::aux_copia(Arv *arv_copia, NoArv *no_copia, NoArv *no_original){
+    if(no_original == NULL){
         return;
     }else{
-        if(original->filho_esquerda == NULL && original->filho_direita == NULL){
-            no_copia->info = original->info;
-        }else{
-            no_copia->info = original->info;
-            no_copia->filho_esquerda = this->aloca_no();
-            no_copia->filho_direita = this->aloca_no();
+        if(no_original->filho_esquerda != NULL){
+            no_copia->filho_esquerda = arv_copia->aloca_no();
         }
-            
-        complementa_copia(no_copia->filho_esquerda, original->filho_esquerda);
-        complementa_copia(no_copia->filho_direita, original->filho_direita);
-    }
+        if(no_original->filho_direita != NULL){
+            no_copia->filho_direita = arv_copia->aloca_no();
+        }
 
-   
-    return;
-}
-
-void Arv::copia_arvore(Arv *copia, NoArv *no_original,NoArv *no_copia){
-    
-    
-    aux_copia(copia,no_copia,no_original);
-}
-
-void Arv::aux_copia(Arv *copia, NoArv *no_copia, NoArv *no_original){
-    if(no_original->filho_esquerda == NULL && no_original->filho_direita == NULL){
-        
         no_copia->info = no_original->info;
-        return;
+
+        aux_copia(arv_copia,no_copia->filho_esquerda,no_original->filho_esquerda);
+        aux_copia(arv_copia,no_copia->filho_direita,no_original->filho_direita);
     }
-    no_copia->filho_esquerda = copia->aloca_no();
-    no_copia->filho_direita = copia->aloca_no();
-    aux_copia(copia,no_copia->filho_esquerda,no_original->filho_esquerda);
-    aux_copia(copia,no_copia->filho_direita,no_original->filho_direita);
 
     return;
 }
@@ -221,10 +187,10 @@ void Arv::calcula_aptidao(int *x, int *y, int *z, float *valor_esperado, int qnt
     int somatorio = 0;
 
     for(int i=0;i<qnt_valores;i++){
-        cout << "x\t" << "y\t" << "z\t" << "Valor esperado" << endl;
-        cout << x[i]<< "\t" << y[i] << "\t" << z[i] << "\t" << valor_esperado[i] << endl;
+        //cout << "x\t" << "y\t" << "z\t" << "Valor esperado" << endl;
+        //cout << x[i]<< "\t" << y[i] << "\t" << z[i] << "\t" << valor_esperado[i] << endl;
         resultado = p->resolve_operacoes(x[i],y[i],z[i]);
-        cout << "Resultado do cálculo das operações: "<< resultado << endl;
+        //cout << "Resultado do cálculo das operações: "<< resultado << endl;
         somatorio += pow((valor_esperado[i] - resultado),2);
     }
 
@@ -240,6 +206,19 @@ int Arv::contaNos(NoArv *no)
         return 0;
 }
 
+NoArv* Arv::retorna_ponteiro(NoArv *no, int idx){
+    if(no == NULL){
+        return NULL;
+    }else if(no->idx == idx){
+        return no;
+    }else{
+        NoArv *aux = retorna_ponteiro(no->filho_esquerda,idx);
+        if(aux == NULL){
+            aux = retorna_ponteiro(no->filho_direita,idx);
+        }
+        return aux;
+    }
+}
 
 void Arv::remove(NoArv *sub_raiz, int idx)
 {
@@ -248,30 +227,19 @@ void Arv::remove(NoArv *sub_raiz, int idx)
 
 NoArv* Arv::auxRemove(NoArv *no_atual, NoArv *novo, int idx)
 {
-    if(no_atual->filho_esquerda == NULL || no_atual->filho_esquerda == NULL)
+    if(no_atual == NULL)
     {
-        no_atual = novo;
-        return no_atual;
+        return NULL;
     }
-    else if(no_atual->filho_esquerda->idx == idx){
-        NoArv *aux = no_atual->filho_esquerda;
+    else if(no_atual->idx == idx){
+        NoArv *aux = no_atual;
         cout << "Sub-arvore removida: " << endl;
         auxImprime(aux);
         cout << endl;
-        //libera(aux);
-        no_atual->filho_esquerda = novo;
-        return no_atual;
-    }else if(no_atual->filho_direita->idx == idx) {
-        NoArv *aux = no_atual->filho_direita;
-        cout << "Sub-arvore removida: " << endl;
-        auxImprime(aux);
-        cout << endl;
-
-        //libera(aux);
-
-        no_atual->filho_direita = novo;
         
-        return no_atual;
+        cont++;
+        
+        return novo;
     }
 
     no_atual->filho_esquerda = auxRemove(no_atual->filho_esquerda,novo,idx);
@@ -286,26 +254,6 @@ void Arv::troca_indices(NoArv *no, int novo_idx){
         no->idx = novo_idx;
     }
 }
-
-
-NoArv* Arv::aux_procura(NoArv *atual, int idx, char *c){
-    if(atual->filho_esquerda == NULL || atual->filho_direita == NULL){
-        return NULL;
-    }else if(atual->filho_esquerda->idx == idx){
-        *c = 'e';
-        return atual->filho_esquerda;
-    }else if(atual->filho_direita->idx == idx){
-        *c = 'd';
-        return atual->filho_direita;
-    }
-
-    atual = aux_procura(atual->filho_esquerda,idx, c);
-    atual = aux_procura(atual->filho_direita,idx, c);
-    return atual;
-}
-
-
-
 
 
 #endif //UNTITLED_NOARV_H
