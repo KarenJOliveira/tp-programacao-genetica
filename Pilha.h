@@ -32,7 +32,7 @@ typedef struct Pilha{
         Item desempilha();
         bool ehOperador(char c);
         void copia_pilha(Pilha *p2);
-        float resolve_operacoes(int x,int y,int z);
+        float resolve_operacoes(float x, float y, float z);
         void imprime_pilha();
         No* aloca_pilha();
         void removeK(int k);
@@ -99,7 +99,7 @@ void Pilha::copia_pilha(Pilha *p2){
     }
 }
 
-float Pilha::resolve_operacoes(int x,int y,int z){
+float Pilha::resolve_operacoes(float x, float y, float z){
     Pilha p2;
     copia_pilha(&p2);
     Pilha aux;
@@ -128,7 +128,7 @@ float Pilha::resolve_operacoes(int x,int y,int z){
             case '/':
             {
                 if(b == 0){
-                    cout << "ERRO: Divisão por valor nulo" << endl;
+                    //cout << "ERRO: Divisão por valor nulo" << endl;
                 }else{
                     result = a / b;
                 }

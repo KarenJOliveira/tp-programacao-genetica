@@ -130,7 +130,7 @@ int main(){
     int size_op = sizeof(operadores)/sizeof(operadores[0]);
     int size_var = sizeof(variaveis)/sizeof(variaveis[0]);
     int size_pop = 50;
-    int num_geracoes = 100;
+    int num_geracoes = 10;
 
     int seed = 98;
     float **dados = new float*[10];
@@ -181,6 +181,8 @@ int main(){
             //duas mutaçoes
             muta_arvore(pop_geracional[i],sub1);
             muta_arvore(pop_geracional[i+1],sub2);
+            delete sub1;
+            delete sub2;
 
             pop_geracional[i]->calcula_aptidao(dados);
             pop_geracional[i+1]->calcula_aptidao(dados);

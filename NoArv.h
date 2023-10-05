@@ -232,13 +232,13 @@ NoArv* Arv::auxRemove(NoArv *no_atual, NoArv *novo, int idx)
         return NULL;
     }
     else if(no_atual->idx == idx){
-        NoArv *aux = no_atual;
+        //NoArv *aux = no_atual;
         //cout << "Sub-arvore removida: " << endl;
         //auxImprime(aux);
         //cout << endl;
-        
+        no_atual = NULL;
+
         cont++;
-        
         return novo;
     }
 
