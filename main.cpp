@@ -34,7 +34,7 @@ void leArquivo(float **dados){
     while(getline(file,line)){
 
         stringstream s(line);
-
+        dados[i] = new float[4];
         getline(s,word,',');
         dados[i][0] = stoi(word);
         getline(s,word,',');
@@ -130,16 +130,17 @@ int main(){
     int size_op = sizeof(operadores)/sizeof(operadores[0]);
     int size_var = sizeof(variaveis)/sizeof(variaveis[0]);
     int size_pop = 50;
+    int num_geracoes = 100;
 
     int seed = 98;
-    float **dados[10][4];
+    float **dados = new float*[10];
     /*
     int x[10];
     int y[10];
     int z[10];
     float valor_esperado[10];
     */
-    leArquivo(dados[10][4]);
+    leArquivo(dados);
 
     for (int i = 0; i < size_pop; i++)
     {
@@ -152,9 +153,8 @@ int main(){
     }
 
     //cout << "Arvores da primeira geração: " << endl;
-    int num_geracoes = 100;
     
-    for(int i=0;i<num_geracoes;i++){
+    for(int j=0;j<num_geracoes;j++){
 
         Arv **pop_geracional = new Arv*[100];
         
@@ -172,15 +172,18 @@ int main(){
 
             recombina_arvores(pop_geracional[i], pop_geracional[i], size_pop,seed);
 
-            Arv *sub = new Arv;
-            sub->implementa(sub->raiz,0,operadores,variaveis,size_op,size_var); 
-
+            Arv *sub1 = new Arv;
+            Arv *sub2 = new Arv;
+            sub1->altura_max = 15;
+            sub2->altura_max = 15;
+            sub1->implementa(sub1->raiz,0,operadores,variaveis,size_op,size_var); 
+            sub2->implementa(sub1->raiz,0,operadores,variaveis,size_op,size_var);
             //duas mutaçoes
-            muta_arvore(pop_geracional[rand_arv],pop_geracional[rand_arv2]);
+            muta_arvore(pop_geracional[i],sub1);
+            muta_arvore(pop_geracional[i+1],sub2);
 
-
-            pop_geracional[i]->calcula_aptidao(dados[10][4]);
-            pop_geracional[i+1]->calcula_aptidao(dados[10][4]);
+            pop_geracional[i]->calcula_aptidao(dados);
+            pop_geracional[i+1]->calcula_aptidao(dados);
             //cout << "Aptidão obtida pela arvore recombinada " << i << ": "<< primeira_geracao[i]->aptidao << endl;
         }
 
@@ -189,7 +192,6 @@ int main(){
         for(int k=0;k<size_pop;k++){
             pop_inicial[k]->libera(pop_inicial[k]->raiz);
         }
-    
         delete [] pop_inicial;
 
         pop_inicial = pop_geracional;

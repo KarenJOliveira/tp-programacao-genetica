@@ -190,7 +190,7 @@ void Arv::calcula_aptidao(float **dados){
         //cout << "x\t" << "y\t" << "z\t" << "Valor esperado" << endl;
         //cout << x[i]<< "\t" << y[i] << "\t" << z[i] << "\t" << valor_esperado[i] << endl;
         resultado = p->resolve_operacoes(dados[i][0],dados[i][1],dados[i][2]);
-        cout << "Resultado do calculo das operacoes linha "<< i <<": "<< resultado << endl;
+        //cout << "Resultado do calculo das operacoes linha "<< i <<": "<< resultado << endl;
         somatorio += pow((dados[i][3] - resultado),2);
     }
 
