@@ -52,29 +52,29 @@ void leArquivo(int *x,int *y,int *z,float *esperado){
 
 void muta_arvore(Arv *arv_inicial, Arv* sub_arv, int rand_no)
 {
-    cout << "Arvore escolhida para mutação: " << endl;
-    arv_inicial->imprime();
-    cout << endl;
-    cout << "Sub arvore escolhida para mutação: " << endl;
-    sub_arv->imprime();
-    cout << endl;
+    //cout << "Arvore escolhida para mutação: " << endl;
+    //arv_inicial->imprime();
+    //cout << endl;
+    //cout << "Sub arvore escolhida para mutação: " << endl;
+    //sub_arv->imprime();
+    //cout << endl;
     arv_inicial->remove(sub_arv->raiz,rand_no);
-    cout << "Arvore mutada: " << endl;
-    arv_inicial->imprime();
-    cout << endl;
+    //cout << "Arvore mutada: " << endl;
+    //arv_inicial->imprime();
+    //cout << endl;
 }
 
 void recombina_arvores(Arv *arv1, Arv *arv2,int size_pop, int seed){
     srand(seed);
     int rand_no2;
     int rand_no;
-
+/*
     cout << "Arvores escolhidas para recombinação: " << endl;
     arv1->imprime();
     cout << endl;
     arv2->imprime();
     cout << endl;
-
+*/
     //cout << "Nós selecionados para recombinação: " << endl;
     rand_no = rand()%(arv1->cont+1);
     //arv1->auxImprime(&arv1->nos[rand_no]);
@@ -91,12 +91,13 @@ void recombina_arvores(Arv *arv1, Arv *arv2,int size_pop, int seed){
     arv1->remove(sub2,rand_no);
     arv2->remove(sub1,rand_no2);
 
+/*
     cout << "\nArvores recombinadas: " << endl;
     arv1->imprime();
     cout << endl;
     arv2->imprime();
     cout << endl;
-
+*/
 }
 
 //procurar qual o melhor elemento e colocar no vetor filho
@@ -130,7 +131,7 @@ int main(){
     int size_var = sizeof(variaveis)/sizeof(variaveis[0]);
     int size_pop = 50;
 
-    int seed = 54;
+    int seed = 98;
     int x[10];
     int y[10];
     int z[10];
@@ -145,17 +146,17 @@ int main(){
         pop_inicial[i]->raiz->info = operadores[rand()%size_op];
         pop_inicial[i]->implementa(pop_inicial[i]->raiz,0,operadores,variaveis,size_op,size_var);
         //pop_inicial[i]->imprime();
-        cout << endl;
+        //cout << endl;
     }
 
     Arv **primeira_geracao = new Arv*[100];
-    cout << "Arvores da primeira geração: " << endl;
+    //cout << "Arvores da primeira geração: " << endl;
     for (int i = 0; i < size_pop; i++)
     {
         primeira_geracao[i] = new Arv;
         pop_inicial[i]->copia_arvore(primeira_geracao[i]);
-        primeira_geracao[i]->imprime();
-        cout << endl;
+        //primeira_geracao[i]->imprime();
+        //cout << endl;
     }
     
 
@@ -172,7 +173,7 @@ int main(){
         rand_arv2 = rand()%size_pop;
         int rand_no = rand()%(primeira_geracao[rand_arv]->cont+1);
         muta_arvore(primeira_geracao[rand_arv],primeira_geracao[rand_arv2],rand_no);
-        /*
+        
         for (int i = 0; i < size_pop; i++)
         {
             pop_inicial[i]->calcula_aptidao(x,y,z,valor_esperado,10);
@@ -187,7 +188,7 @@ int main(){
         }
 
         evolucao(pop_inicial,primeira_geracao,size_pop,size_pop);
-        */
+        
     }
 
 

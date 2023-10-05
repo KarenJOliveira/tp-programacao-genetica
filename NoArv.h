@@ -190,7 +190,7 @@ void Arv::calcula_aptidao(int *x, int *y, int *z, float *valor_esperado, int qnt
         //cout << "x\t" << "y\t" << "z\t" << "Valor esperado" << endl;
         //cout << x[i]<< "\t" << y[i] << "\t" << z[i] << "\t" << valor_esperado[i] << endl;
         resultado = p->resolve_operacoes(x[i],y[i],z[i]);
-        //cout << "Resultado do cálculo das operações: "<< resultado << endl;
+        cout << "Resultado do calculo das operacoes linha "<< i <<": "<< resultado << endl;
         somatorio += pow((valor_esperado[i] - resultado),2);
     }
 
@@ -233,9 +233,9 @@ NoArv* Arv::auxRemove(NoArv *no_atual, NoArv *novo, int idx)
     }
     else if(no_atual->idx == idx){
         NoArv *aux = no_atual;
-        cout << "Sub-arvore removida: " << endl;
-        auxImprime(aux);
-        cout << endl;
+        //cout << "Sub-arvore removida: " << endl;
+        //auxImprime(aux);
+        //cout << endl;
         
         cont++;
         
