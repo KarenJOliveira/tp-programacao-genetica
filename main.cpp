@@ -10,7 +10,7 @@
 #include <sstream>
 using namespace std;
 
-void leArquivo(int *x,int *y,int *z,float *esperado){
+void leArquivo(float **dados){
     fstream file;
     file.open("data.csv", ios::in);
 
@@ -36,21 +36,21 @@ void leArquivo(int *x,int *y,int *z,float *esperado){
         stringstream s(line);
 
         getline(s,word,',');
-        x[i] = stoi(word);
+        dados[i][0] = stoi(word);
         getline(s,word,',');
-        y[i] = stoi(word);
+        dados[i][1] = stoi(word);
         getline(s,word,',');
-        z[i] = stoi(word);
+        dados[i][2] = stoi(word);
 
         getline(s,word,',');
-        esperado[i] = stoi(word);
+        dados[i][3] = stoi(word);
 
         i++;
     }
     return;
 }
 
-void muta_arvore(Arv *arv_inicial, Arv* sub_arv, int rand_no)
+void muta_arvore(Arv *arv_inicial, Arv* sub_arv)
 {
     //cout << "Arvore escolhida para mutação: " << endl;
     //arv_inicial->imprime();
@@ -58,6 +58,7 @@ void muta_arvore(Arv *arv_inicial, Arv* sub_arv, int rand_no)
     //cout << "Sub arvore escolhida para mutação: " << endl;
     //sub_arv->imprime();
     //cout << endl;
+    int rand_no = rand()%(arv_inicial->cont+1);
     arv_inicial->remove(sub_arv->raiz,rand_no);
     //cout << "Arvore mutada: " << endl;
     //arv_inicial->imprime();
@@ -76,12 +77,9 @@ void recombina_arvores(Arv *arv1, Arv *arv2,int size_pop, int seed){
     cout << endl;
 */
     //cout << "Nós selecionados para recombinação: " << endl;
-    rand_no = rand()%(arv1->cont+1);
-    //arv1->auxImprime(&arv1->nos[rand_no]);
-    //cout << endl;
+    rand_no = rand()%(arv1->cont+1); 
     rand_no2 = rand()%(arv2->cont+1);
-    //arv2->auxImprime(&arv2->nos[rand_no2]);
-    //cout << endl;
+    
 
     arv1->setAlturaMax(15);
     arv2->setAlturaMax(15);
@@ -117,9 +115,11 @@ void evolucao(Arv **pop_inicial,Arv** primeira_geracao, int size_pop, int size_g
             menos_eficiente = i;
         }
     }
-
+    Arv *aux = primeira_geracao[menos_eficiente];
     primeira_geracao[menos_eficiente] = pop_inicial[mais_eficiente]; 
+    pop_inicial[mais_eficiente] = aux;
 }
+
 
 int main(){
 
@@ -132,12 +132,14 @@ int main(){
     int size_pop = 50;
 
     int seed = 98;
+    float **dados[10][4];
+    /*
     int x[10];
     int y[10];
     int z[10];
     float valor_esperado[10];
-    leArquivo(x,y,z,valor_esperado);
-
+    */
+    leArquivo(dados[10][4]);
 
     for (int i = 0; i < size_pop; i++)
     {
@@ -149,46 +151,48 @@ int main(){
         //cout << endl;
     }
 
-    Arv **primeira_geracao = new Arv*[100];
     //cout << "Arvores da primeira geração: " << endl;
-    for (int i = 0; i < size_pop; i++)
-    {
-        primeira_geracao[i] = new Arv;
-        pop_inicial[i]->copia_arvore(primeira_geracao[i]);
-        //primeira_geracao[i]->imprime();
-        //cout << endl;
-    }
+    int num_geracoes = 100;
     
+    for(int i=0;i<num_geracoes;i++){
 
-    for(int i=0;i<1;i++){
-        int rand_arv; 
-        int rand_arv2; 
-        rand_arv = rand()%size_pop;
-        rand_arv2 = rand()%size_pop;
-
-        recombina_arvores(primeira_geracao[rand_arv], primeira_geracao[rand_arv2], size_pop,seed);
-
-
-        rand_arv = rand()%size_pop;
-        rand_arv2 = rand()%size_pop;
-        int rand_no = rand()%(primeira_geracao[rand_arv]->cont+1);
-        muta_arvore(primeira_geracao[rand_arv],primeira_geracao[rand_arv2],rand_no);
+        Arv **pop_geracional = new Arv*[100];
         
-        for (int i = 0; i < size_pop; i++)
-        {
-            pop_inicial[i]->calcula_aptidao(x,y,z,valor_esperado,10);
-            //cout << "Aptidão obtida pela arvore " << i << ": "<< pop_inicial[i]->aptidao << endl;
-        }
+        for(int i=0;i<size_pop;i=i+2){
+
+            int rand_arv; 
+            int rand_arv2; 
+            rand_arv = rand()%size_pop;
+            rand_arv2 = rand()%size_pop;
+
+            pop_geracional[i] = new Arv;
+            pop_geracional[i+1] = new Arv;
+            pop_inicial[rand_arv]->copia_arvore(pop_geracional[i]);
+            pop_inicial[rand_arv2]->copia_arvore(pop_geracional[i+1]);
+
+            recombina_arvores(pop_geracional[i], pop_geracional[i], size_pop,seed);
+
+            Arv *sub = new Arv;
+            sub->implementa(sub->raiz,0,operadores,variaveis,size_op,size_var); 
+
+            //duas mutaçoes
+            muta_arvore(pop_geracional[rand_arv],pop_geracional[rand_arv2]);
 
 
-        for (int i = 0; i < size_pop; i++)
-        {
-            primeira_geracao[i]->calcula_aptidao(x,y,z,valor_esperado,10);
+            pop_geracional[i]->calcula_aptidao(dados[10][4]);
+            pop_geracional[i+1]->calcula_aptidao(dados[10][4]);
             //cout << "Aptidão obtida pela arvore recombinada " << i << ": "<< primeira_geracao[i]->aptidao << endl;
         }
 
-        evolucao(pop_inicial,primeira_geracao,size_pop,size_pop);
+        evolucao(pop_inicial,pop_geracional,size_pop,size_pop);
         
+        for(int k=0;k<size_pop;k++){
+            pop_inicial[k]->libera(pop_inicial[k]->raiz);
+        }
+    
+        delete [] pop_inicial;
+
+        pop_inicial = pop_geracional;
     }
 
 
