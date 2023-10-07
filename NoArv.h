@@ -54,7 +54,7 @@ typedef struct Arv
     void imprime();
     void auxImprime(NoArv *no);
 
-    void implementa(NoArv *no,int altura, char *operadores, char *variaveis, int size_op, int size_var);
+    void implementa(NoArv *no,int altura, vector<char> operadores, vector<char> variaveis, int size_op, int size_var);
     void empilha_arv(NoArv *no,Pilha *p);
     void calcula_aptidao(float **dados);
     int contaNos(NoArv *no);
@@ -105,7 +105,7 @@ void Arv::libera(NoArv *no)
     }
 }
 
-void Arv::implementa(NoArv *no,int altura, char *operadores, char *variaveis, int size_op, int size_var)
+void Arv::implementa(NoArv *no,int altura, vector<char> operadores, vector<char> variaveis, int size_op, int size_var)
 {
     if(altura == altura_max){
 
@@ -188,10 +188,10 @@ void Arv::calcula_aptidao(float **dados){
 
     for(int i=0;i<10;i++){
         //cout << "x\t" << "y\t" << "z\t" << "Valor esperado" << endl;
-        //cout << x[i]<< "\t" << y[i] << "\t" << z[i] << "\t" << valor_esperado[i] << endl;
-        resultado = p->resolve_operacoes(dados[i][0],dados[i][1],dados[i][2]);
-        //cout << "Resultado do calculo das operacoes linha "<< i <<": "<< resultado << endl;
-        somatorio += pow((dados[i][3] - resultado),2);
+            //cout << x[i]<< "\t" << y[i] << "\t" << z[i] << "\t" << valor_esperado[i] << endl;
+            resultado = p->resolve_operacoes(dados[i][0], dados[i][1], dados[i][2]);
+            //cout << "Resultado do calculo das operacoes linha "<< i <<": "<< resultado << endl;
+            somatorio += pow((dados[i][3] - resultado),2);
     }
 
     this->aptidao = somatorio;

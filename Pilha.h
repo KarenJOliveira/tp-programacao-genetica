@@ -32,12 +32,12 @@ typedef struct Pilha{
         Item desempilha();
         bool ehOperador(char c);
         void copia_pilha(Pilha *p2);
-        float resolve_operacoes(float x, float y, float z);
+        float resolve_operacoes(float x,float y,float z);
         void imprime_pilha();
         No* aloca_pilha();
         void removeK(int k);
         void insereK(int k,No* novo);
-        void muta_pilha(Pilha sub, int k);
+        
         
 }Pilha;
 
@@ -99,7 +99,7 @@ void Pilha::copia_pilha(Pilha *p2){
     }
 }
 
-float Pilha::resolve_operacoes(float x, float y, float z){
+float Pilha::resolve_operacoes(float x,float y,float z){
     Pilha p2;
     copia_pilha(&p2);
     Pilha aux;
@@ -196,20 +196,3 @@ void Pilha::removeK(int k){
     cont--;
 }
 
-void Pilha::muta_pilha(Pilha sub, int k){
-
-    int i = 0;
-    while(!sub.vazia()){
-        Item aux = sub.desempilha();
-        insereK(k,&sub.pilha[i]);
-        i++;
-    }
-    int pos = k+i;
-    if(cont > sub.cont){
-        int qnt = cont - sub.cont;
-        for (int i = 0; i < qnt; i++)
-        {
-            removeK(pos+i);
-        } 
-    }
-}
