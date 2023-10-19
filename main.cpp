@@ -57,7 +57,7 @@ float** leArquivo(int *dados_l,int *dados_c){
     return dados;
 }
 
-void muta_arvore(Arv *arv_inicial) // TODO: testar com a troca de indices
+void muta_arvore(Arv *arv_inicial) // TODO: resolver problema de malloc(): unaligned fastbin chunk detected 3
 {
     //cout << "Arvore escolhida para mutação: " << endl;
     //arv_inicial->imprime();
@@ -78,9 +78,8 @@ void muta_arvore(Arv *arv_inicial) // TODO: testar com a troca de indices
     sub_arv->implementa(sub_arv->raiz,0,operadores,variaveis,operadores.size(),variaveis.size());
 
     arv_inicial->remove(sub_arv->raiz,rand_no);
-
+    sub_arv = NULL;
     delete sub_arv;
-    //cout << "Arvore mutada: " << endl;
     //arv_inicial->imprime();
     //cout << endl;
 }
