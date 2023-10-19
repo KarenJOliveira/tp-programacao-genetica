@@ -1,5 +1,5 @@
 #include <iostream>
-#define MAX_PILHA 1500
+#define MAX_PILHA 150000
 using namespace std;
 
 typedef struct Item{
@@ -14,90 +14,113 @@ typedef struct Item{
 
 typedef struct No{
     Item info;
+    No *prox; // ponteiro para o proximo
 
-    No(){};
+    No()                  { };
+    ~No()                 { };
+    Item getInfo()         { return info; };
+    No* getProx()         { return prox; };
+    void setInfo(Item val) { info = val; };
+    void setProx(No *p)   { prox = p; };
+
 }No;
 
 typedef struct Pilha{
     public:
         No *topo; 
-        No pilha[MAX_PILHA]; // armazena os nós da pilha
         int cont; //quantidade de nós na pilha
+
         Pilha(){
-            topo = pilha;
+            topo = NULL;
             cont = 0;
         }
+        ~Pilha(){
+            while(topo != NULL)
+            {
+                No *p = topo;
+                topo = topo->getProx();
+                delete p;
+            }
+        }
+        Item getTopo();
+        void imprime();     
         bool vazia();
         void empilha(Item data);
         Item desempilha();
-        bool ehOperador(char c);
         void copia_pilha(Pilha *p2);
         float resolve_operacoes(float x,float y,float z);
-        void imprime_pilha();
+
         No* aloca_pilha();
-        void removeK(int k);
-        void insereK(int k,No* novo);
-        
+
         
 }Pilha;
 
-void Pilha::imprime_pilha(){
-    int i = 0;
-    while(i < cont){
-        Item aux = pilha[i].info;
-        cout << (char)aux.n << " ";
-        i++;
+
+Item Pilha::getTopo()
+{
+    if(topo != NULL)
+        return topo->getInfo();
+    cout << "ERRO: Pilha vazia" << endl;
+    exit(1);
+}
+
+void Pilha::empilha(Item val)
+{
+    No *p = aloca_pilha();
+    p->setInfo(val);
+    p->setProx(topo);
+    topo = p;
+}
+
+Item Pilha::desempilha()
+{
+    if(topo == NULL){
+        cout << "ERRO: Pilha vazia" << endl;
+        exit(0);
     }
+    else
+    {
+        No *p = topo;
+        topo = topo->getProx();
+        Item val = p->getInfo();
+        delete p;
+        return val;
+    }
+}
+
+bool Pilha::vazia()
+{
+    return topo == NULL;
+}
+
+void Pilha::imprime()
+{
+    cout << "Pilha: ";
+    for(No *p = topo; p != NULL; p = p->getProx())
+        cout << p->getInfo().n << " ";
     cout << endl;
 }
 
-bool Pilha::vazia(){
-    if(cont < 0)
-        return true;
-
-    return false;
-}
 
 No* Pilha::aloca_pilha(){
     if(cont < MAX_PILHA){
-        if(cont == 0){
-            cont++;
-            return &pilha[0];
-        }
-        return &pilha[cont++];
+        cont++;
+        return new No;
     }
     return NULL;
 }
-void Pilha::empilha(Item data){
-
-    No *aux = aloca_pilha();
-    aux->info = data;
-    topo = aux;
-}
-
-Item Pilha::desempilha(){
-    if(!vazia()){
-        Item item;
-        item = topo->info;
-        cont--;
-        topo = &pilha[cont];
-        return item;
-    }
-    else{
-        cout << "Pilha vazia" << endl;
-        exit(1);
-    }
-}
-
 
 
 void Pilha::copia_pilha(Pilha *p2){
-    int i = cont-1;
-    while(i >= 0){
-        p2->empilha(pilha[i].info);
-        i--;
+    No *p = this->topo;
+    int cont = this->cont;
+    while(cont > 0){
+        p2->empilha(p->getInfo());
+        p = p->getProx();
+        cont --;
     }
 }
+
 
 float Pilha::resolve_operacoes(float x,float y,float z){
     Pilha p2;
@@ -174,25 +197,3 @@ float Pilha::resolve_operacoes(float x,float y,float z){
     float resultado = aux.desempilha().n;
     return resultado;
 }
-
-
-void Pilha::insereK(int k,No *novo){
-    if(cont < MAX_PILHA){
-        for(int i = cont; i > k; i--){
-            pilha[i] = pilha[i-1];
-        }
-        pilha[k].info = novo->info;
-
-    }
-    else{
-        cout << "Erro: vetor cheio" << endl;
-    }
-}
-
-void Pilha::removeK(int k){
-    for(int i = k; i < cont-1; i++){
-        pilha[i] = pilha[i+1];
-    }
-    cont--;
-}
-

@@ -48,6 +48,10 @@ typedef struct Arv
         aptidao = 0;
     }
 
+    ~Arv(){
+        liberar();
+    }
+
     void setAlturaMax(int altura){
         altura_max = altura;
     }
@@ -62,7 +66,7 @@ typedef struct Arv
     void calcula_aptidao(float **dados, int dados_l, int dados_c);
     int contaNos(NoArv *no);
     void copia_arvore(Arv *original);
-    void aux_copia(NoArv *no_copia, NoArv *no_original);
+    NoArv* aux_copia(NoArv *no_copia, NoArv *no_original);
     void remove(NoArv *sub_raiz, int val);
     NoArv* auxRemove(NoArv *no_atual, NoArv *novo, int idx);
     NoArv* retorna_ponteiro(NoArv *no, int idx);
@@ -165,12 +169,12 @@ void Arv::empilha_arv(NoArv *no,Pilha *p){
 
 void Arv::copia_arvore(Arv *original){
     
-    aux_copia(raiz, original->raiz);
+    raiz = aux_copia(raiz, original->raiz);
 }
 
-void Arv::aux_copia(NoArv *no_copia, NoArv *no_original){
+NoArv* Arv::aux_copia(NoArv *no_copia, NoArv *no_original){
     if(no_original == NULL){
-        return;
+        return NULL;
     }else{
         if(no_original->filho_esquerda != NULL){
             no_copia->filho_esquerda = aloca_no();
@@ -179,14 +183,15 @@ void Arv::aux_copia(NoArv *no_copia, NoArv *no_original){
             no_copia->filho_direita = aloca_no();
         }
 
-        no_copia->info = no_original->info;
-
         aux_copia(no_copia->filho_esquerda,no_original->filho_esquerda);
         aux_copia(no_copia->filho_direita,no_original->filho_direita);
-    }
 
-    return;
+        no_copia->info = no_original->info;
+    }
+    
+    return no_copia;
 }
+
 
 void Arv::calcula_aptidao(float **dados, int dados_l, int dados_c){
     Pilha *p = new Pilha;
@@ -241,7 +246,7 @@ NoArv* Arv::auxRemove(NoArv *no_atual, NoArv *novo, int idx)
     }
     else if(no_atual->idx == idx){
         //libera(no_atual);
-        novo->idx = no_atual->idx;
+        troca_indices(novo, no_atual->idx);
         no_atual = NULL;
 
         cont++;

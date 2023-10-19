@@ -10,7 +10,7 @@
 #include <sstream>
 #define ALTURA_MAX 10
 #define MAX_POP 10
-#define MAX_GER 100
+#define MAX_GER 10
 
 vector<char> variaveis = {'x','y','z'};
 vector<char> operadores = {'+','-','*','/'};
@@ -57,12 +57,18 @@ float** leArquivo(int *dados_l,int *dados_c){
     return dados;
 }
 
-void muta_arvore(Arv *arv_inicial)
+void muta_arvore(Arv *arv_inicial) // TODO: testar com a troca de indices
 {
     //cout << "Arvore escolhida para mutação: " << endl;
     //arv_inicial->imprime();
     //cout << endl;
-    int rand_no = rand()%(arv_inicial->cont);
+    int rand_no;
+    if(arv_inicial->cont == 0){
+        rand_no = 0;
+    }else{
+        rand_no = rand()%(arv_inicial->cont);
+
+    }
     //cout << "Sub arvore escolhida para mutação: " << endl;
     //sub_arv->imprime();
     //cout << endl;
@@ -117,7 +123,7 @@ void substitui_pop(Arv **pop_inicial,Arv** pop_geracional){
         }
     }
 
-    for(int i = 0; i < MAX_GER; i++){
+    for(int i = 0; i < MAX_POP; i++){
         if(pop_geracional[i]->aptidao < pop_geracional[menos_eficiente]->aptidao){
             menos_eficiente = i;
         }
@@ -126,7 +132,7 @@ void substitui_pop(Arv **pop_inicial,Arv** pop_geracional){
     Arv *aux = pop_geracional[menos_eficiente];
     pop_geracional[menos_eficiente] = pop_inicial[mais_eficiente];
     pop_inicial[mais_eficiente] = aux;
-    delete aux;
+    aux = NULL;
 }
 
 Arv* torneio_arv(Arv** pop_inicial){
@@ -168,18 +174,21 @@ int main(){
         pop_inicial[i]->calcula_aptidao(dados,dados_l,dados_c);
     }
 
-    Arv **pop_geracional = new Arv*[MAX_POP]; //Cria vetor de ponteiros para população geracional
     
     for(int j=0;j<num_geracoes;j++){
 
         Arv *rand_arv;
         Arv *rand_arv2;
-        for(int i=0;i<size_pop;i++){
+        Arv **pop_geracional = new Arv*[MAX_POP]; //Cria vetor de ponteiros para população geracional
+        for(int i=0;i<size_pop;i+=2){
             pop_geracional[i] = new Arv;
             pop_geracional[i+1] = new Arv;
+
             rand_arv = torneio_arv(pop_inicial);
             rand_arv2 = torneio_arv(pop_inicial);
+
             pop_geracional[i]->copia_arvore(rand_arv);
+  
             pop_geracional[i+1]->copia_arvore(rand_arv2);
 
             recombina_arvores(pop_geracional[i], pop_geracional[i+1]);
@@ -187,16 +196,20 @@ int main(){
             muta_arvore(pop_geracional[i+1]);
 
             pop_geracional[i]->calcula_aptidao(dados,dados_l,dados_c);
-            substitui_pop(pop_inicial,pop_geracional);
         }
+        
+        substitui_pop(pop_inicial,pop_geracional);
 
         for(int k=0;k<size_pop;k++){
-            pop_inicial[k]->liberar();
+            delete pop_inicial[k];
         }
+        
         pop_inicial = pop_geracional;
 
-        delete rand_arv2;
-        delete rand_arv;
+        pop_geracional = NULL;
+
+        rand_arv2 = NULL;
+        rand_arv = NULL;
     }
 
 /*
