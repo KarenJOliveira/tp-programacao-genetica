@@ -10,6 +10,7 @@
 #include <random>
 #include <vector>
 #define MAX 1000
+#define ALTURA_MAX 10
 using namespace std;
 
 typedef struct NoArv
@@ -43,28 +44,29 @@ typedef struct Arv
     Arv(){
         raiz = new NoArv;
         cont = 0;
-        altura_max = 0;
+        altura_max = ALTURA_MAX;
+        aptidao = 0;
     }
 
     void setAlturaMax(int altura){
         altura_max = altura;
     }
+
     NoArv* aloca_no();
-    void libera(NoArv *no);
+    NoArv* libera(NoArv *no);
+    void liberar();
     void imprime();
     void auxImprime(NoArv *no);
-
     void implementa(NoArv *no,int altura, vector<char> operadores, vector<char> variaveis, int size_op, int size_var);
     void empilha_arv(NoArv *no,Pilha *p);
-    void calcula_aptidao(float **dados);
+    void calcula_aptidao(float **dados, int dados_l, int dados_c);
     int contaNos(NoArv *no);
-    void copia_arvore(Arv *copia);
-    void aux_copia(Arv *arv_copia,NoArv *no_copia, NoArv *no_original);
+    void copia_arvore(Arv *original);
+    void aux_copia(NoArv *no_copia, NoArv *no_original);
     void remove(NoArv *sub_raiz, int val);
     NoArv* auxRemove(NoArv *no_atual, NoArv *novo, int idx);
     NoArv* retorna_ponteiro(NoArv *no, int idx);
     void troca_indices(NoArv *no, int novo_idx);
-    
 }Arv;
 
 
@@ -72,8 +74,7 @@ NoArv* Arv::aloca_no()
 {
     if(cont < MAX){
         cont++;
-        //nos[cont].idx = cont;
-        //return &nos[cont];
+       
         NoArv *no = new NoArv;
         no->idx = cont;
         return no;
@@ -94,15 +95,22 @@ void Arv::auxImprime(NoArv *no){
     }
 }
 
-void Arv::libera(NoArv *no)
+NoArv* Arv::libera(NoArv *no)
 {
     if(no != NULL)
     {
-        libera(no->filho_esquerda);
-        libera(no->filho_direita);
+        no->filho_esquerda = libera(no->filho_esquerda);
+        no->filho_direita = libera(no->filho_direita);
         delete no;
+        no = NULL;
         cont--;
     }
+    return no;
+}
+void Arv::liberar()
+{
+    raiz = libera(raiz);
+    aptidao = -1;
 }
 
 void Arv::implementa(NoArv *no,int altura, vector<char> operadores, vector<char> variaveis, int size_op, int size_var)
@@ -119,7 +127,7 @@ void Arv::implementa(NoArv *no,int altura, vector<char> operadores, vector<char>
         return;
     }
 
-    if(rand()%100 > 40){
+    if(rand()%100 > 45){
         no->info = operadores[rand()%size_op];
         no->ehOperador = true;
     }else{
@@ -155,46 +163,46 @@ void Arv::empilha_arv(NoArv *no,Pilha *p){
 }
 
 
-void Arv::copia_arvore(Arv *copia){
+void Arv::copia_arvore(Arv *original){
     
-    aux_copia(copia,copia->raiz,this->raiz);
+    aux_copia(raiz, original->raiz);
 }
 
-void Arv::aux_copia(Arv *arv_copia, NoArv *no_copia, NoArv *no_original){
+void Arv::aux_copia(NoArv *no_copia, NoArv *no_original){
     if(no_original == NULL){
         return;
     }else{
         if(no_original->filho_esquerda != NULL){
-            no_copia->filho_esquerda = arv_copia->aloca_no();
+            no_copia->filho_esquerda = aloca_no();
         }
         if(no_original->filho_direita != NULL){
-            no_copia->filho_direita = arv_copia->aloca_no();
+            no_copia->filho_direita = aloca_no();
         }
 
         no_copia->info = no_original->info;
 
-        aux_copia(arv_copia,no_copia->filho_esquerda,no_original->filho_esquerda);
-        aux_copia(arv_copia,no_copia->filho_direita,no_original->filho_direita);
+        aux_copia(no_copia->filho_esquerda,no_original->filho_esquerda);
+        aux_copia(no_copia->filho_direita,no_original->filho_direita);
     }
 
     return;
 }
 
-void Arv::calcula_aptidao(float **dados){
+void Arv::calcula_aptidao(float **dados, int dados_l, int dados_c){
     Pilha *p = new Pilha;
     this->empilha_arv(this->raiz,p);
     int resultado = 0;
     int somatorio = 0;
+    
 
-    for(int i=0;i<10;i++){
-        //cout << "x\t" << "y\t" << "z\t" << "Valor esperado" << endl;
-            //cout << x[i]<< "\t" << y[i] << "\t" << z[i] << "\t" << valor_esperado[i] << endl;
-            resultado = p->resolve_operacoes(dados[i][0], dados[i][1], dados[i][2]);
-            //cout << "Resultado do calculo das operacoes linha "<< i <<": "<< resultado << endl;
-            somatorio += pow((dados[i][3] - resultado),2);
+    for(int i=0;i<dados_l;i++){
+        resultado = p->resolve_operacoes(dados[i][0], dados[i][1], dados[i][2]); //Substitui as variaveis pelos valores nos dados e resolve a expressão gerada pelos nós
+        somatorio += pow((dados[i][3] - resultado),2); // Calcula o somatório do erro quadrático(Média da diferença quadrática entre a predição do modelo e o valor de destino)
+
     }
 
     this->aptidao = somatorio;
+    
     delete p;
 }
 
@@ -209,7 +217,7 @@ int Arv::contaNos(NoArv *no)
 NoArv* Arv::retorna_ponteiro(NoArv *no, int idx){
     if(no == NULL){
         return NULL;
-    }else if(no->idx == idx){
+    }else if(no->idx == idx){ //procura nó com o índice passado e o retorna seu ponteiro
         return no;
     }else{
         NoArv *aux = retorna_ponteiro(no->filho_esquerda,idx);
@@ -222,7 +230,7 @@ NoArv* Arv::retorna_ponteiro(NoArv *no, int idx){
 
 void Arv::remove(NoArv *sub_raiz, int idx)
 {
-    raiz = auxRemove(raiz, sub_raiz, idx);
+    this->raiz = auxRemove(this->raiz, sub_raiz, idx);
 }
 
 NoArv* Arv::auxRemove(NoArv *no_atual, NoArv *novo, int idx)
@@ -232,10 +240,8 @@ NoArv* Arv::auxRemove(NoArv *no_atual, NoArv *novo, int idx)
         return NULL;
     }
     else if(no_atual->idx == idx){
-        //NoArv *aux = no_atual;
-        //cout << "Sub-arvore removida: " << endl;
-        //auxImprime(aux);
-        //cout << endl;
+        //libera(no_atual);
+        novo->idx = no_atual->idx;
         no_atual = NULL;
 
         cont++;

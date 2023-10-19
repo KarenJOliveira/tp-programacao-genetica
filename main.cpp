@@ -8,8 +8,8 @@
 #include <string>
 #include <fstream>
 #include <sstream>
-#define ALTURA_MAX 30
-#define MAX_POP 1000
+#define ALTURA_MAX 10
+#define MAX_POP 10
 #define MAX_GER 100
 
 vector<char> variaveis = {'x','y','z'};
@@ -17,7 +17,8 @@ vector<char> operadores = {'+','-','*','/'};
 
 using namespace std;
 
-void leArquivo(float **dados, int dados_l, int dados_c){
+float** leArquivo(int *dados_l,int *dados_c){
+    
     fstream file;
     file.open("data.csv", ios::in);
 
@@ -27,38 +28,33 @@ void leArquivo(float **dados, int dados_l, int dados_c){
         cout << "Erro ao abrir o arquivo" << endl;
         exit(1);
     }
+    
+    string linha,tam;
 
-    string line, word;
+    getline(file,linha);
+    getline(file,linha,',');
+    stringstream ss(linha);
+    ss >> (*dados_l);
+    getline(file,linha,',');
+    stringstream ss2(linha);
+    ss2 >> (*dados_c);
 
-    int i,j = 0;
-    string linha;
-
-    getline(file,linha,',');
-    getline(file,linha,'\n');
-    getline(file,linha,',');
-    getline(file,linha,',');
-    getline(file,linha,',');
-    getline(file,linha,'\n');
+    float **dados;
+    getline(file,linha);
     linha.clear();
 
-    stringstream ss(line);
-    
-    //trocar codigo
-
-    
-    
-    dados_c = stof(word);
-
-    for(int i=0;getline(file,line);i++){
-        stringstream s(line);
-        
-        for(int j=0;getline(s,word,',');j++){
-            getline(s,word,',');
+    string line;
+    dados = new float*[(*dados_l)];
+    for(int i=0;i<(*dados_l);i++){
+        dados[i] = new float[(*dados_c)];
+        for(int j=0;j<(*dados_c);j++){
+            getline(file,line,',');
+            stringstream s(line);
             s >> dados[i][j]; 
         }
     }
 
-    return;
+    return dados;
 }
 
 void muta_arvore(Arv *arv_inicial)
@@ -66,37 +62,36 @@ void muta_arvore(Arv *arv_inicial)
     //cout << "Arvore escolhida para mutação: " << endl;
     //arv_inicial->imprime();
     //cout << endl;
-    int rand_no = rand()%(arv_inicial->cont+1);
+    int rand_no = rand()%(arv_inicial->cont);
     //cout << "Sub arvore escolhida para mutação: " << endl;
     //sub_arv->imprime();
     //cout << endl;
     Arv *sub_arv = new Arv;
-    sub_arv->implementa(sub_arv->raiz,0,operadores,variaveis,operadores.size(),operadores.size());
+    sub_arv->altura_max = ALTURA_MAX;
+    sub_arv->raiz->info = operadores[rand()%operadores.size()];
+    sub_arv->implementa(sub_arv->raiz,0,operadores,variaveis,operadores.size(),variaveis.size());
 
     arv_inicial->remove(sub_arv->raiz,rand_no);
+
+    delete sub_arv;
     //cout << "Arvore mutada: " << endl;
     //arv_inicial->imprime();
     //cout << endl;
 }
 
-void recombina_arvores(Arv *arv1, Arv *arv2,int size_pop){
+void recombina_arvores(Arv *arv1, Arv *arv2){
     
     int rand_no2;
     int rand_no;
     rand_no = rand()%(arv1->cont+1);
     rand_no2 = rand()%(arv2->cont+1);
-/*
-    cout << "Arvores escolhidas para recombinação: " << endl;
-    arv1->imprime();
-    cout << endl;
-    arv2->imprime();
-    cout << endl;
-*/
-    //cout << "Nós selecionados para recombinação: " << endl;
-    //arv1->auxImprime(&arv1->nos[rand_no]);
-    //cout << endl;
-    //arv2->auxImprime(&arv2->nos[rand_no2]);
-    //cout << endl;
+    if(arv1->cont == 0){
+        rand_no = 0;
+    }
+    if(arv2->cont == 0){
+        rand_no2 = 0;
+    }
+
 
     arv1->setAlturaMax(ALTURA_MAX);
     arv2->setAlturaMax(ALTURA_MAX);
@@ -106,18 +101,13 @@ void recombina_arvores(Arv *arv1, Arv *arv2,int size_pop){
     arv1->remove(sub2,rand_no);
     arv2->remove(sub1,rand_no2);
 
-/*
-    cout << "\nArvores recombinadas: " << endl;
-    arv1->imprime();
-    cout << endl;
-    arv2->imprime();
-    cout << endl;
-*/
+    sub1 = NULL;
+    sub2 = NULL;
 }
 
 //procurar qual o melhor elemento e colocar no vetor filho
 
-void evolucao(Arv **pop_inicial,Arv** pop_geracional){
+void substitui_pop(Arv **pop_inicial,Arv** pop_geracional){
     int mais_eficiente = 0;
     int menos_eficiente = 0;
 
@@ -133,86 +123,89 @@ void evolucao(Arv **pop_inicial,Arv** pop_geracional){
         }
     }
 
-    pop_geracional[menos_eficiente] = pop_inicial[mais_eficiente]; 
+    Arv *aux = pop_geracional[menos_eficiente];
+    pop_geracional[menos_eficiente] = pop_inicial[mais_eficiente];
+    pop_inicial[mais_eficiente] = aux;
+    delete aux;
+}
+
+Arv* torneio_arv(Arv** pop_inicial){
+    int rand1; 
+    int rand2; 
+    rand1 = rand()%MAX_POP;
+    rand2 = rand()%MAX_POP;
+
+    if(pop_inicial[rand1]->aptidao > pop_inicial[rand2]->aptidao){
+        return pop_inicial[rand1];
+    }
+    else{
+        return pop_inicial[rand2];
+    }
 }
 
 
 int main(){
 
-
-    Arv **pop_inicial = new Arv*[MAX_POP];
-    //char operadores[4] = {'+', '-', '*', '/'};
-    //char variaveis[3] = {'x', 'y', 'z'};
-    //int size_op = sizeof(operadores)/sizeof(operadores[0]);
-    //int size_var = sizeof(variaveis)/sizeof(variaveis[0]);
-    int size_pop = MAX_POP;
-    int num_geracoes = MAX_GER;
+    int size_pop = 10;
+    int num_geracoes = 10;
 
     int seed = 98;
-    float **dados;
+    srand(seed);
     int dados_l;
     int dados_c;
-    /*
-    int x[10];
-    int y[10];
-    int z[10];
-    float valor_esperado[10];
-    */
-    leArquivo(dados,dados_l,dados_c);
+    
+    float **dados;
+    dados = leArquivo(&dados_l,&dados_c);
+
+    Arv **pop_inicial = new Arv*[MAX_POP]; //Cria vetor de ponteiros para população inicial
 
     for (int i = 0; i < size_pop; i++)
     {
         pop_inicial[i] = new Arv;
         pop_inicial[i]->altura_max = ALTURA_MAX;
-        pop_inicial[i]->raiz->info = operadores[rand()%operadores.size()];
-        pop_inicial[i]->implementa(pop_inicial[i]->raiz,0,operadores,variaveis,operadores.size(),operadores.size());
-        //pop_inicial[i]->imprime();
-        //cout << endl;
+        pop_inicial[i]->raiz->info = operadores[rand()%operadores.size()]; //Inicializa a raiz da arvore com um operador aleatório
+        pop_inicial[i]->implementa(pop_inicial[i]->raiz,0,operadores,variaveis,operadores.size(),variaveis.size());
+        pop_inicial[i]->calcula_aptidao(dados,dados_l,dados_c);
     }
 
-    Arv **pop_geracional = new Arv*[MAX_POP];
-    //cout << "Arvores da primeira geração: " << endl;
+    Arv **pop_geracional = new Arv*[MAX_POP]; //Cria vetor de ponteiros para população geracional
     
     for(int j=0;j<num_geracoes;j++){
 
-    for(int i=0;i<num_geracoes;i++){
-
-        pop_geracional[i] = new Arv;
-        pop_geracional[i+1] = new Arv;
-
+        Arv *rand_arv;
+        Arv *rand_arv2;
         for(int i=0;i<size_pop;i++){
-            int rand_arv; 
-            int rand_arv2; 
-            rand_arv = rand()%size_pop;
-            rand_arv2 = rand()%size_pop;
-            pop_inicial[rand_arv]->copia_arvore(pop_geracional[i]);
-            pop_inicial[rand_arv2]->copia_arvore(pop_geracional[i+1]);
+            pop_geracional[i] = new Arv;
+            pop_geracional[i+1] = new Arv;
+            rand_arv = torneio_arv(pop_inicial);
+            rand_arv2 = torneio_arv(pop_inicial);
+            pop_geracional[i]->copia_arvore(rand_arv);
+            pop_geracional[i+1]->copia_arvore(rand_arv2);
 
-            recombina_arvores(pop_geracional[i], pop_geracional[i+2], size_pop);
-
+            recombina_arvores(pop_geracional[i], pop_geracional[i+1]);
             muta_arvore(pop_geracional[i]);
             muta_arvore(pop_geracional[i+1]);
 
-            for (int i = 0; i < size_pop; i++)
-            {
-                pop_inicial[i]->calcula_aptidao(dados);
-            }
-
-
-            for (int i = 0; i < size_pop; i++)
-            {
-                pop_geracional[i]->calcula_aptidao(dados);
-
-            }
-
-            evolucao(pop_inicial,pop_geracional);
-
+            pop_geracional[i]->calcula_aptidao(dados,dados_l,dados_c);
+            substitui_pop(pop_inicial,pop_geracional);
         }
 
+        for(int k=0;k<size_pop;k++){
+            pop_inicial[k]->liberar();
+        }
+        pop_inicial = pop_geracional;
+
+        delete rand_arv2;
+        delete rand_arv;
     }
 
-    //conferir se cálculo esta sendo feito corretamente
-    //conferir se a aptidao esta sendo calculada corretamente
+/*
+Tendência crescente: uma tendência crescente indica que a métrica está se deteriorando.
+Os dados de feedback estão se tornando significativamente diferentes dos dados de treinamento.
+
+Tendência de queda: uma tendência de queda indica que a métrica está melhorando.
+Isso significa que o novo treinamento do modelo é efetivo.
+*/
 
 
     return 0;
