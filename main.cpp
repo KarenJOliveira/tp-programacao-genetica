@@ -47,11 +47,16 @@ float** leArquivo(int *dados_l,int *dados_c){
     dados = new float*[(*dados_l)];
     for(int i=0;i<(*dados_l);i++){
         dados[i] = new float[(*dados_c)];
-        for(int j=0;j<(*dados_c);j++){
+        for(int j=0;j<(*dados_c)-1;j++){
             getline(file,line,',');
+            //cout << line << endl;
             stringstream s(line);
             s >> dados[i][j]; 
         }
+        getline(file,line);
+        //cout << line << endl;
+        stringstream s(line);
+        s >> dados[i][(*dados_c)-1];
     }
 
     return dados;

@@ -111,7 +111,6 @@ No* Pilha::aloca_pilha(){
     return NULL;
 }
 
-
 void Pilha::copia_pilha(Pilha *p2){
     No *p = this->topo;
     int cont = this->cont;
@@ -122,14 +121,13 @@ void Pilha::copia_pilha(Pilha *p2){
     }
 }
 
-
 float Pilha::resolve_operacoes(float x,float y,float z){
-    Pilha p2;
-    copia_pilha(&p2);
+    Pilha *p2 = new Pilha;
+    copia_pilha(p2);
     Pilha aux;
 
-    while(!p2.vazia()){
-        Item temp = p2.desempilha();
+    while(!p2->vazia()){
+        Item temp = p2->desempilha();
         if(temp.ehOperador){
             char op = static_cast<char>(temp.n);
             float a = aux.desempilha().n;
