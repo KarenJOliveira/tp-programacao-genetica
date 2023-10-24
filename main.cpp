@@ -9,7 +9,7 @@
 #include <fstream>
 #include <sstream>
 #define ALTURA_MAX 10
-#define MAX_POP 10
+#define MAX_POP 5000
 #define MAX_GER 10
 
 vector<char> variaveis = {'x','y','z'};
@@ -112,17 +112,17 @@ void recombina_arvores(Arv *arv1, Arv *arv2){
 
 //procurar qual o melhor elemento e colocar no vetor filho
 
-void substitui_pop(Arv **pop_inicial,Arv** pop_geracional){
+void substitui_pop(Arv **pop_inicial,Arv** pop_geracional, int size_pop){
     int mais_eficiente = 0;
     int menos_eficiente = 0;
 
-    for(int i = 0; i < MAX_POP; i++){
+    for(int i = 0; i < size_pop; i++){
         if(pop_inicial[i]->aptidao > pop_inicial[mais_eficiente]->aptidao){
             mais_eficiente = i;
         }
     }
 
-    for(int i = 0; i < MAX_POP; i++){
+    for(int i = 0; i < size_pop; i++){
         if(pop_geracional[i]->aptidao < pop_geracional[menos_eficiente]->aptidao){
             menos_eficiente = i;
         }
@@ -134,11 +134,11 @@ void substitui_pop(Arv **pop_inicial,Arv** pop_geracional){
     aux = NULL;
 }
 
-Arv* torneio_arv(Arv** pop_inicial){
+Arv* torneio_arv(Arv** pop_inicial, int size_pop){
     int rand1; 
     int rand2; 
-    rand1 = rand()%MAX_POP;
-    rand2 = rand()%MAX_POP;
+    rand1 = rand()%size_pop;
+    rand2 = rand()%size_pop;
 
     if(pop_inicial[rand1]->aptidao > pop_inicial[rand2]->aptidao){
         return pop_inicial[rand1];
@@ -151,7 +151,7 @@ Arv* torneio_arv(Arv** pop_inicial){
 
 int main(){
 
-    int size_pop = 10;
+    int size_pop = 100;
     int num_geracoes = 10;
 
     int seed = 98;
@@ -170,7 +170,7 @@ int main(){
         pop_inicial[i]->altura_max = ALTURA_MAX;
         pop_inicial[i]->raiz->info = operadores[rand()%operadores.size()]; //Inicializa a raiz da arvore com um operador aleatório
         pop_inicial[i]->implementa(pop_inicial[i]->raiz,0,operadores,variaveis,operadores.size(),variaveis.size());
-        pop_inicial[i]->calcula_aptidao(dados,dados_l,dados_c);
+        pop_inicial[i]->calcula_aptidao(dados,dados_l);
     }
 
     
@@ -179,36 +179,48 @@ int main(){
         Arv *rand_arv;
         Arv *rand_arv2;
         Arv **pop_geracional = new Arv*[MAX_POP]; //Cria vetor de ponteiros para população geracional
+
         for(int i=0;i<size_pop;i+=2){
             pop_geracional[i] = new Arv;
             pop_geracional[i+1] = new Arv;
 
-            rand_arv = torneio_arv(pop_inicial);
-            rand_arv2 = torneio_arv(pop_inicial);
+            rand_arv = torneio_arv(pop_inicial, size_pop);
+            rand_arv2 = torneio_arv(pop_inicial, size_pop);
 
-            pop_geracional[i]->copia_arvore(rand_arv);
-  
-            pop_geracional[i+1]->copia_arvore(rand_arv2);
+            pop_geracional[i]->copyTree(rand_arv->raiz);
+            pop_geracional[i]->cont = rand_arv->cont;
+            pop_geracional[i+1]->copyTree(rand_arv2->raiz);
+            pop_geracional[i+1]->cont = rand_arv2->cont;
 
             recombina_arvores(pop_geracional[i], pop_geracional[i+1]);
             muta_arvore(pop_geracional[i]);
             muta_arvore(pop_geracional[i+1]);
 
-            pop_geracional[i]->calcula_aptidao(dados,dados_l,dados_c);
+            pop_geracional[i]->calcula_aptidao(dados,dados_l);
         }
         
-        substitui_pop(pop_inicial,pop_geracional);
-
-        for(int k=0;k<size_pop;k++){
-            delete pop_inicial[k];
-        }
+        substitui_pop(pop_inicial,pop_geracional,size_pop);
         
-        pop_inicial = pop_geracional;
+        /*
+        for (int k = 0; k < size_pop; k++) { 
+            cout << "População parental: " << endl;
+            pop_inicial[k]->imprime();
+            cout << endl;
+            cout << "População geracional: " << endl;
+            pop_geracional[k]->imprime();
+            cout << endl;
+        }
+        */
+        for (int k = 0; k < size_pop; k++) {
+            delete pop_inicial[k];  // Delete old data in pop_inicial
+            pop_inicial[k] = pop_geracional[k];  // Transfer the pointer
+            //cout << "População geracional: " << endl;
+            //pop_geracional[k]->imprime();
+            //cout << endl;
+            pop_geracional[k] = nullptr;  // Set pop_geracional[k] to nullptr to avoid deleting it later
+        }
 
-        pop_geracional = NULL;
-
-        rand_arv2 = NULL;
-        rand_arv = NULL;
+        delete[] pop_geracional;
     }
 
 /*

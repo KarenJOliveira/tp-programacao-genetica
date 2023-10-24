@@ -21,6 +21,7 @@ public:
     NoArv *filho_esquerda;
     NoArv *filho_direita;
     bool ehOperador;
+
     NoArv(){
         info = '\0';
         idx = 0;
@@ -29,18 +30,26 @@ public:
         filho_direita = NULL;
     };
 
+    NoArv* getLeftChild() { return filho_esquerda; }
+    NoArv* getRightChild() { return filho_direita; }
+    void setLeftChild(NoArv* left) { filho_esquerda = left; }
+    void setRightChild(NoArv* right) { filho_direita = right; }
+    void setInfo(char info) { this->info = info; }
+    char getInfo() { return info; }
+    void setId(int id) { idx = id; }
+    int getId() { return idx; }
+
 }NoArv;
 
 typedef struct Arv
 {
-    NoArv *raiz;
-
-    //NoArv nos[MAX]; // vetor que armazena os nós
+    
+    NoArv *raiz ;
     int cont; // quantidade de nós no vetor N-1
     int altura_max;
 
     float aptidao;
-
+public:
     Arv(){
         raiz = new NoArv;
         cont = 0;
@@ -56,6 +65,7 @@ typedef struct Arv
         altura_max = altura;
     }
 
+    NoArv* getRoot() { return raiz; }
     NoArv* aloca_no();
     NoArv* libera(NoArv *no);
     void liberar();
@@ -63,14 +73,14 @@ typedef struct Arv
     void auxImprime(NoArv *no);
     void implementa(NoArv *no,int altura, vector<char> operadores, vector<char> variaveis, int size_op, int size_var);
     void empilha_arv(NoArv *no,Pilha *p);
-    void calcula_aptidao(float **dados, int dados_l, int dados_c);
+    void calcula_aptidao(float **dados, int dados_l);
     int contaNos(NoArv *no);
-    void copia_arvore(Arv *original);
-    NoArv* aux_copia(NoArv *no_copia, NoArv *no_original);
     void remove(NoArv *sub_raiz, int val);
     NoArv* auxRemove(NoArv *no_atual, NoArv *novo, int idx);
     NoArv* retorna_ponteiro(NoArv *no, int idx);
-    void troca_indices(NoArv *no, int novo_idx);
+    void changeNodeIndices(NoArv* root, int& index);
+    void copia_arv(NoArv *source);
+    NoArv* copyTree(NoArv* source);
 }Arv;
 
 
@@ -106,7 +116,6 @@ NoArv* Arv::libera(NoArv *no)
         no->filho_esquerda = libera(no->filho_esquerda);
         no->filho_direita = libera(no->filho_direita);
         delete no;
-        no = NULL;
         cont--;
     }
     return no;
@@ -165,45 +174,45 @@ void Arv::empilha_arv(NoArv *no,Pilha *p){
         p->empilha(aux);
     }
 }
-
-
-void Arv::copia_arvore(Arv *original){
-    
-    raiz = aux_copia(raiz, original->raiz);
+void Arv::copia_arv(NoArv *source){
+    raiz = copyTree(source);
 }
 
-NoArv* Arv::aux_copia(NoArv *no_copia, NoArv *no_original){
-    if(no_original == NULL){
-        return NULL;
-    }else{
-        if(no_original->filho_esquerda != NULL){
-            no_copia->filho_esquerda = aloca_no();
-        }
-        if(no_original->filho_direita != NULL){
-            no_copia->filho_direita = aloca_no();
-        }
-
-        aux_copia(no_copia->filho_esquerda,no_original->filho_esquerda);
-        aux_copia(no_copia->filho_direita,no_original->filho_direita);
-
-        no_copia->info = no_original->info;
+NoArv* Arv::copyTree(NoArv* source) {
+    if (source == nullptr) {
+        return nullptr;
     }
-    
-    return no_copia;
+
+    // Create a new node in the destination tree with the same value
+    NoArv* destination = new NoArv;
+    destination->info = source->info;
+    destination->idx = source->idx;
+    if(source->ehOperador){
+        destination->ehOperador = source->ehOperador;
+    }else{
+        destination->ehOperador = source->ehOperador;
+        return destination;
+    }
+
+    // Recursively copy the left and right subtrees
+    destination->filho_esquerda = copyTree(source->filho_esquerda);
+    destination->filho_direita = copyTree(source->filho_direita);
+
+    return destination;
 }
 
-
-void Arv::calcula_aptidao(float **dados, int dados_l, int dados_c){
+void Arv::calcula_aptidao(float **dados, int dados_l){
     Pilha *p = new Pilha;
     this->empilha_arv(this->raiz,p);
-    int resultado = 0;
-    int somatorio = 0;
+    float resultado = 0;
+    float somatorio = 0;
+    float diferenca = 0;
     
 
     for(int i=0;i<dados_l;i++){
         resultado = p->resolve_operacoes(dados[i][0], dados[i][1], dados[i][2]); //Substitui as variaveis pelos valores nos dados e resolve a expressão gerada pelos nós
-        somatorio += pow((dados[i][3] - resultado),2); // Calcula o somatório do erro quadrático(Média da diferença quadrática entre a predição do modelo e o valor de destino)
-
+        diferenca = dados[i][3] - resultado;
+        somatorio += pow(diferenca,2); // Calcula o somatório do erro quadrático(Média da diferença quadrática entre a predição do modelo e o valor de destino)
     }
 
     this->aptidao = somatorio;
@@ -246,7 +255,7 @@ NoArv* Arv::auxRemove(NoArv *no_atual, NoArv *novo, int idx)
     }
     else if(no_atual->idx == idx){
         //libera(no_atual);
-        troca_indices(novo, no_atual->idx);
+        changeNodeIndices(novo, idx);
         no_atual = NULL;
 
         cont++;
@@ -258,12 +267,21 @@ NoArv* Arv::auxRemove(NoArv *no_atual, NoArv *novo, int idx)
     return no_atual;
 }
 
-void Arv::troca_indices(NoArv *no, int novo_idx){
-    if(no != NULL){
-        troca_indices(no->filho_esquerda, novo_idx++);
-        troca_indices(no->filho_direita, novo_idx++);
-        no->idx = novo_idx;
+
+void Arv::changeNodeIndices(NoArv* root, int& index) {
+    if (root == nullptr) {
+        return;
     }
+
+    // Change the index of the current node
+    root->idx = index;
+    index++;
+
+    // Recursively change indices of left subtree
+    changeNodeIndices(root->filho_esquerda, index);
+
+    // Recursively change indices of right subtree
+    changeNodeIndices(root->filho_direita, index);
 }
 
 

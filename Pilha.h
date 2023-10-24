@@ -8,6 +8,7 @@ typedef struct Item{
     bool ehOperador;
     Item(){
         n = 0;
+        pos = -1;
         ehOperador = false;
     };
 }Item;
