@@ -64,29 +64,25 @@ float** leArquivo(int *dados_l,int *dados_c){
 
 void muta_arvore(Arv *arv_inicial) // TODO: resolver problema de malloc(): unaligned fastbin chunk detected 3
 {
-    //cout << "Arvore escolhida para mutação: " << endl;
-    //arv_inicial->imprime();
-    //cout << endl;
     int rand_no;
+
     if(arv_inicial->cont == 0){
         rand_no = 0;
     }else{
         rand_no = rand()%(arv_inicial->cont);
-
     }
-    //cout << "Sub arvore escolhida para mutação: " << endl;
-    //sub_arv->imprime();
-    //cout << endl;
+   
     Arv *sub_arv = new Arv;
     sub_arv->altura_max = ALTURA_MAX;
     sub_arv->raiz->info = operadores[rand()%operadores.size()];
     sub_arv->implementa(sub_arv->raiz,0,operadores,variaveis,operadores.size(),variaveis.size());
 
+    Arv *aux = new Arv;
+    aux->raiz = arv_inicial->retorna_ponteiro(arv_inicial->raiz,rand_no);
     arv_inicial->remove(sub_arv->raiz,rand_no);
     sub_arv = NULL;
     delete sub_arv;
-    //arv_inicial->imprime();
-    //cout << endl;
+
 }
 
 void recombina_arvores(Arv *arv1, Arv *arv2){
@@ -102,17 +98,24 @@ void recombina_arvores(Arv *arv1, Arv *arv2){
         rand_no2 = 0;
     }
 
-
     arv1->setAlturaMax(ALTURA_MAX);
     arv2->setAlturaMax(ALTURA_MAX);
-    NoArv *sub1 = arv1->retorna_ponteiro(arv1->raiz,rand_no);
-    NoArv *sub2 = arv2->retorna_ponteiro(arv2->raiz,rand_no2);
+    Arv *aux = new Arv;
+    Arv *aux2 = new Arv;
+    NoArv *sub1;
+    sub1 = arv1->retorna_ponteiro(arv1->raiz,rand_no);
+    aux->copia_arv(sub1);
+    NoArv *sub2;
+    sub2 = arv2->retorna_ponteiro(arv2->raiz,rand_no2);
+    aux2->copia_arv(sub2);
 
-    arv1->remove(sub2,rand_no);
-    arv2->remove(sub1,rand_no2);
+    arv1->remove(aux2->raiz,rand_no);
+    arv2->remove(aux->raiz,rand_no2);
 
-    sub1 = NULL;
-    sub2 = NULL;
+    aux = NULL;
+    delete aux;
+    aux2 = NULL;
+    delete aux2;
 }
 
 //procurar qual o melhor elemento e colocar no vetor filho
@@ -188,46 +191,66 @@ int main(){
         for(int i=0;i<size_pop;i+=2){
             pop_geracional[i] = new Arv;
             pop_geracional[i+1] = new Arv;
+            
 
             rand_arv = torneio_arv(pop_inicial, size_pop);
             rand_arv2 = torneio_arv(pop_inicial, size_pop);
+            cout << "População parental: " << endl;
+            rand_arv->imprime();
+            cout << endl;
+            rand_arv2->imprime();
+            cout << endl;
+            
 
-            pop_geracional[i]->copyTree(rand_arv->raiz);
+            pop_geracional[i]->copia_arv(rand_arv->raiz);
             pop_geracional[i]->cont = rand_arv->cont;
-            pop_geracional[i+1]->copyTree(rand_arv2->raiz);
+            pop_geracional[i+1]->copia_arv(rand_arv2->raiz);
             pop_geracional[i+1]->cont = rand_arv2->cont;
 
             recombina_arvores(pop_geracional[i], pop_geracional[i+1]);
+            cout << "População geracional após recombinação: " << endl;
+            pop_geracional[i]->imprime();
+            cout << endl;
+            pop_geracional[i+1]->imprime();
+            cout << endl;
+            
             muta_arvore(pop_geracional[i]);
             muta_arvore(pop_geracional[i+1]);
+            cout << "População geracional após mutação: " << endl;
+            pop_geracional[i]->imprime();
+            cout << endl;
+            pop_geracional[i+1]->imprime();
+            cout << endl;
 
             pop_geracional[i]->calcula_aptidao(dados,dados_l);
         }
         
         substitui_pop(pop_inicial,pop_geracional,size_pop);
         
-        /*
-        for (int k = 0; k < size_pop; k++) { 
-            cout << "População parental: " << endl;
-            pop_inicial[k]->imprime();
-            cout << endl;
-            cout << "População geracional: " << endl;
-            pop_geracional[k]->imprime();
-            cout << endl;
-        }
-        */
+        
+        // for (int k = 0; k < size_pop; k++) { 
+            
+        //     cout << "População geracional: " << endl;
+        //     pop_geracional[k]->imprime();
+        //     cout << endl;
+        // }
+        
         for (int k = 0; k < size_pop; k++) {
             delete pop_inicial[k];  // Delete old data in pop_inicial
             pop_inicial[k] = pop_geracional[k];  // Transfer the pointer
-            //cout << "População geracional: " << endl;
-            //pop_geracional[k]->imprime();
-            //cout << endl;
+            // cout << "População geracional: " << endl;
+            // pop_geracional[k]->imprime();
+            // cout << endl;
             pop_geracional[k] = nullptr;  // Set pop_geracional[k] to nullptr to avoid deleting it later
         }
 
         delete[] pop_geracional;
     }
 
+for (int k = 0; k < size_pop; k++) {
+    delete pop_inicial[k];  // Delete old data in pop_inicial
+}
+delete [] pop_inicial;
 /*
 Tendência crescente: uma tendência crescente indica que a métrica está se deteriorando.
 Os dados de feedback estão se tornando significativamente diferentes dos dados de treinamento.

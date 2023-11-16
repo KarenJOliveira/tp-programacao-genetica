@@ -232,7 +232,8 @@ NoArv* Arv::retorna_ponteiro(NoArv *no, int idx){
     if(no == NULL){
         return NULL;
     }else if(no->idx == idx){ //procura nó com o índice passado e o retorna seu ponteiro
-        return no;
+        NoArv *aux = no;
+        return aux;
     }else{
         NoArv *aux = retorna_ponteiro(no->filho_esquerda,idx);
         if(aux == NULL){
@@ -254,11 +255,10 @@ NoArv* Arv::auxRemove(NoArv *no_atual, NoArv *novo, int idx)
         return NULL;
     }
     else if(no_atual->idx == idx){
-        //libera(no_atual);
+        
         changeNodeIndices(novo, idx);
-        no_atual = NULL;
-
-        cont++;
+        libera(no_atual);
+        
         return novo;
     }
 
