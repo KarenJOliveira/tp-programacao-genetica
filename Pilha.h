@@ -4,11 +4,9 @@ using namespace std;
 
 typedef struct Item{
     float n;
-    int pos;
     bool ehOperador;
     Item(){
         n = 0;
-        pos = -1;
         ehOperador = false;
     };
 }Item;
@@ -51,7 +49,7 @@ typedef struct Pilha{
         void copia_pilha(Pilha *p2);
         float resolve_operacoes(float x,float y,float z);
 
-        No* aloca_pilha();
+        //No* aloca_pilha();
 
         
 }Pilha;
@@ -67,9 +65,10 @@ Item Pilha::getTopo()
 
 void Pilha::empilha(Item val)
 {
-    No *p = aloca_pilha();
+    No *p = new No;
     p->setInfo(val);
     p->setProx(topo);
+    this->cont++;
     topo = p;
 }
 
@@ -85,6 +84,7 @@ Item Pilha::desempilha()
         topo = topo->getProx();
         Item val = p->getInfo();
         delete p;
+        this->cont--;
         return val;
     }
 }
@@ -103,21 +103,21 @@ void Pilha::imprime()
 }
 
 
-No* Pilha::aloca_pilha(){
-    if(cont < MAX_PILHA){
-        cont++;
-        return new No;
-    }
-    return NULL;
-}
+// No* Pilha::aloca_pilha(){
+//     if(cont < MAX_PILHA){
+//         cont++;
+//         return new No;
+//     }
+//     return NULL;
+// }
 
 void Pilha::copia_pilha(Pilha *p2){
     No *p = this->topo;
-    int cont = this->cont;
-    while(cont > 0){
+    int cont_aux = this->cont;
+    while(cont_aux > 0){
         p2->empilha(p->getInfo());
         p = p->getProx();
-        cont --;
+        cont_aux --;
     }
 }
 

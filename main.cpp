@@ -12,8 +12,6 @@
 #define MAX_POP 5000
 #define MAX_GER 10
 
-vector<char> variaveis = {'x','y','z'};
-vector<char> operadores = {'+','-','*','/'};
 
 using namespace std;
 
@@ -62,65 +60,11 @@ float** leArquivo(int *dados_l,int *dados_c){
     return dados;
 }
 
-void muta_arvore(Arv *arv_inicial) // TODO: resolver problema de malloc(): unaligned fastbin chunk detected 3
-{
-    int rand_no;
 
-    if(arv_inicial->cont == 0){
-        rand_no = 0;
-    }else{
-        rand_no = rand()%(arv_inicial->cont);
-    }
-   
-    Arv *sub_arv = new Arv;
-    sub_arv->altura_max = ALTURA_MAX;
-    sub_arv->raiz->info = operadores[rand()%operadores.size()];
-    sub_arv->implementa(sub_arv->raiz,0,operadores,variaveis,operadores.size(),variaveis.size());
-
-    Arv *aux = new Arv;
-    aux->raiz = arv_inicial->retorna_ponteiro(arv_inicial->raiz,rand_no);
-    arv_inicial->remove(sub_arv->raiz,rand_no);
-    sub_arv = NULL;
-    delete sub_arv;
-
-}
-
-void recombina_arvores(Arv *arv1, Arv *arv2){
-    
-    int rand_no2;
-    int rand_no;
-    rand_no = rand()%(arv1->cont+1);
-    rand_no2 = rand()%(arv2->cont+1);
-    if(arv1->cont == 0){
-        rand_no = 0;
-    }
-    if(arv2->cont == 0){
-        rand_no2 = 0;
-    }
-
-    arv1->setAlturaMax(ALTURA_MAX);
-    arv2->setAlturaMax(ALTURA_MAX);
-    Arv *aux = new Arv;
-    Arv *aux2 = new Arv;
-    NoArv *sub1;
-    sub1 = arv1->retorna_ponteiro(arv1->raiz,rand_no);
-    aux->copia_arv(sub1);
-    NoArv *sub2;
-    sub2 = arv2->retorna_ponteiro(arv2->raiz,rand_no2);
-    aux2->copia_arv(sub2);
-
-    arv1->remove(aux2->raiz,rand_no);
-    arv2->remove(aux->raiz,rand_no2);
-
-    aux = NULL;
-    delete aux;
-    aux2 = NULL;
-    delete aux2;
-}
 
 //procurar qual o melhor elemento e colocar no vetor filho
 
-void substitui_pop(Arv **pop_inicial,Arv** pop_geracional, int size_pop){
+void substituiPop(Arv **pop_inicial,Arv** pop_geracional, int size_pop){
     int mais_eficiente = 0;
     int menos_eficiente = 0;
 
@@ -142,7 +86,7 @@ void substitui_pop(Arv **pop_inicial,Arv** pop_geracional, int size_pop){
     aux = NULL;
 }
 
-Arv* torneio_arv(Arv** pop_inicial, int size_pop){
+Arv* torneioArv(Arv** pop_inicial, int size_pop){
     int rand1; 
     int rand2; 
     rand1 = rand()%size_pop;
@@ -178,7 +122,7 @@ int main(){
         pop_inicial[i]->altura_max = ALTURA_MAX;
         pop_inicial[i]->raiz->info = operadores[rand()%operadores.size()]; //Inicializa a raiz da arvore com um operador aleatório
         pop_inicial[i]->implementa(pop_inicial[i]->raiz,0,operadores,variaveis,operadores.size(),variaveis.size());
-        pop_inicial[i]->calcula_aptidao(dados,dados_l);
+        pop_inicial[i]->calculaAptidao(dados,dados_l);
     }
 
     
@@ -193,8 +137,10 @@ int main(){
             pop_geracional[i+1] = new Arv;
             
 
-            rand_arv = torneio_arv(pop_inicial, size_pop);
-            rand_arv2 = torneio_arv(pop_inicial, size_pop);
+            rand_arv = torneioArv(pop_inicial, size_pop);
+            rand_arv2 = torneioArv(pop_inicial, size_pop);
+            
+            cout << "Geração j = " << j << " e indivíduo i = " << i << endl;
             cout << "População parental: " << endl;
             rand_arv->imprime();
             cout << endl;
@@ -202,42 +148,37 @@ int main(){
             cout << endl;
             
 
-            pop_geracional[i]->copia_arv(rand_arv->raiz);
+            pop_geracional[i]->copiaArv(rand_arv->raiz);
             pop_geracional[i]->cont = rand_arv->cont;
-            pop_geracional[i+1]->copia_arv(rand_arv2->raiz);
+            pop_geracional[i+1]->copiaArv(rand_arv2->raiz);
             pop_geracional[i+1]->cont = rand_arv2->cont;
 
-            recombina_arvores(pop_geracional[i], pop_geracional[i+1]);
+            pop_geracional[i]->recombinaArv(pop_geracional[i+1]);
             cout << "População geracional após recombinação: " << endl;
             pop_geracional[i]->imprime();
             cout << endl;
             pop_geracional[i+1]->imprime();
             cout << endl;
             
-            muta_arvore(pop_geracional[i]);
-            muta_arvore(pop_geracional[i+1]);
+            pop_geracional[i]->mutaArv();
+            pop_geracional[i+1]->mutaArv();
             cout << "População geracional após mutação: " << endl;
             pop_geracional[i]->imprime();
             cout << endl;
             pop_geracional[i+1]->imprime();
             cout << endl;
-
-            pop_geracional[i]->calcula_aptidao(dados,dados_l);
+            pop_geracional[i]->cont = pop_geracional[i]->countNodes(pop_geracional[i]->raiz);
+            pop_geracional[i+1]->cont = pop_geracional[i+1]->countNodes(pop_geracional[i+1]->raiz);
+            pop_geracional[i]->calculaAptidao(dados,dados_l);
+            pop_geracional[i+1]->calculaAptidao(dados,dados_l);
         }
         
-        substitui_pop(pop_inicial,pop_geracional,size_pop);
+        substituiPop(pop_inicial,pop_geracional,size_pop);
         
-        
-        // for (int k = 0; k < size_pop; k++) { 
-            
-        //     cout << "População geracional: " << endl;
-        //     pop_geracional[k]->imprime();
-        //     cout << endl;
-        // }
         
         for (int k = 0; k < size_pop; k++) {
-            delete pop_inicial[k];  // Delete old data in pop_inicial
-            pop_inicial[k] = pop_geracional[k];  // Transfer the pointer
+            delete pop_inicial[k];  // Deleta dados antigos de pop_inicial
+            pop_inicial[k] = pop_geracional[k];  // Transfere o ponteiro
             // cout << "População geracional: " << endl;
             // pop_geracional[k]->imprime();
             // cout << endl;
@@ -250,7 +191,11 @@ int main(){
 for (int k = 0; k < size_pop; k++) {
     delete pop_inicial[k];  // Delete old data in pop_inicial
 }
+
 delete [] pop_inicial;
+
+    return 0;
+}
 /*
 Tendência crescente: uma tendência crescente indica que a métrica está se deteriorando.
 Os dados de feedback estão se tornando significativamente diferentes dos dados de treinamento.
@@ -258,7 +203,3 @@ Os dados de feedback estão se tornando significativamente diferentes dos dados 
 Tendência de queda: uma tendência de queda indica que a métrica está melhorando.
 Isso significa que o novo treinamento do modelo é efetivo.
 */
-
-
-    return 0;
-}
