@@ -301,7 +301,8 @@ void Arv::recombinaArv(Arv *arv2){
 
     alteraIndices(sub2, rand_no);
     alteraIndices(sub1, rand_no2);
-
+    this->cont = this->countNodes(this->raiz);
+    arv2->cont = arv2->countNodes(arv2->raiz);
 }
 
 // NoArv* Arv::auxRecombina(NoArv *no_atual,NoArv *novo, int idx){
@@ -366,6 +367,7 @@ void Arv::mutaArv()
 
     this->raiz = auxMuta(this->raiz, sub_arv->raiz, rand_no);
     sub_arv = NULL;
+    this->raiz = this->countNodes(this->raiz);
 
     delete sub_arv;
 }

@@ -160,6 +160,7 @@ int main(){
             cout << endl;
 
             pop_geracional[i]->recombinaArv(pop_geracional[i+1]);
+            
             cout << "População geracional após recombinação: " << endl;
             pop_geracional[i]->imprime();
             cout << endl;
