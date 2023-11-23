@@ -67,7 +67,7 @@ int main(){
     arv.implementa(arv.raiz,0,operadores,variaveis,size_op,size_var);
     arvores[0] = &arv;
     Pilha p;
-    arv.empilha_arv(arv.raiz,&p);
+    arv.empilhaArv(arv.raiz,&p);
 
     int x[10];
     int y[10];

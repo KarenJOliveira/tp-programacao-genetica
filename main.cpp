@@ -153,6 +153,12 @@ int main(){
             pop_geracional[i+1]->copiaArv(rand_arv2->raiz);
             pop_geracional[i+1]->cont = rand_arv2->cont;
 
+            cout << "População geracional: " << endl;
+            pop_geracional[i]->imprime();
+            cout << endl;
+            pop_geracional[i+1]->imprime();
+            cout << endl;
+
             pop_geracional[i]->recombinaArv(pop_geracional[i+1]);
             cout << "População geracional após recombinação: " << endl;
             pop_geracional[i]->imprime();

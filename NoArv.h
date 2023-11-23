@@ -79,7 +79,7 @@ public:
     void calculaAptidao(float **dados, int dados_l);
     NoArv* auxMuta(NoArv *no_atual, NoArv *novo, int idx);
     NoArv* retornaPonteiro(NoArv *no, int idx);
-    void alteraIndices(NoArv* root, int index);
+    void alteraIndices(NoArv* root, int& index);
     void copiaArv(NoArv *source);
     NoArv* auxCopia(NoArv* source);
     void recombinaArv(Arv *arv2);
@@ -217,8 +217,8 @@ NoArv* Arv::auxCopia(NoArv* source) {
 
 void Arv::calculaAptidao(float **dados, int dados_l){
     Pilha *p = new Pilha;
-    this->imprime();
-    cout << endl;
+    //this->imprime();
+    //cout << endl;
     this->empilhaArv(this->raiz,p);
     float resultado = 0;
     float somatorio = 0;
@@ -254,26 +254,38 @@ NoArv* Arv::retornaPonteiro(NoArv *no, int idx){
 
 
 
-void Arv::alteraIndices(NoArv* root, int index) {
+void Arv::alteraIndices(NoArv* root, int& index) {
     if (root == nullptr) {
         return;
     }
 
     // muda o índice do nó atual
     root->idx = index;
+    index++;
 
     // recursivamente muda os indices da subárvore esquerda
-    alteraIndices(root->filho_esquerda, 2*index+1);
+    alteraIndices(root->filho_esquerda, index);
 
     // recursivamente muda os indices da subárvore direita
-    alteraIndices(root->filho_direita, 2*index+2);
+    alteraIndices(root->filho_direita, index);
 }
 
 
 void Arv::recombinaArv(Arv *arv2){
     //seleciona um nó aleatório da árvore 1 e um nó aleatório da árvore 2
-    int rand_no = rand()%(this->cont+1);
-    int rand_no2 = rand()%(arv2->cont+1);
+    int rand_no;
+    int rand_no2;
+    if(this->cont == 0){
+        rand_no = 0;
+    }else{
+        rand_no = rand()%(this->cont);
+    }
+    if (arv2->cont == 0){
+        rand_no2 = 0;
+    }else{
+        rand_no2 = rand()%(arv2->cont);
+    }
+    
     
     this->setAlturaMax(ALTURA_MAX);
     arv2->setAlturaMax(ALTURA_MAX);
@@ -287,8 +299,8 @@ void Arv::recombinaArv(Arv *arv2){
     this->raiz = auxRecombina(this->raiz,this->raiz,sub2,rand_no);
     arv2->raiz = arv2->auxRecombina(arv2->raiz,arv2->raiz,sub1,rand_no2);
 
-    alteraIndices(sub1,rand_no2);
-    alteraIndices(sub2,rand_no);
+    alteraIndices(sub2, rand_no);
+    alteraIndices(sub1, rand_no2);
 
 }
 
