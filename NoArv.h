@@ -9,6 +9,7 @@
 #include <iostream>
 #include <random>
 #include <vector>
+#include <queue>
 #define MAX 1000
 #define ALTURA_MAX 10
 using namespace std;
@@ -79,7 +80,7 @@ public:
     void calculaAptidao(float **dados, int dados_l);
     NoArv* auxMuta(NoArv *no_atual, NoArv *novo, int idx);
     NoArv* retornaPonteiro(NoArv *no, int idx);
-    void alteraIndices(NoArv* root, int& index);
+    void alteraIndices(NoArv* root, int* index);
     void copiaArv(NoArv *source);
     NoArv* auxCopia(NoArv* source);
     void recombinaArv(Arv *arv2);
@@ -94,7 +95,7 @@ NoArv* Arv::alocaNo()
         cont++;
        
         NoArv *no = new NoArv;
-        no->idx = cont;
+        //no->idx = cont;
         return no;
     }
     return NULL;
@@ -131,12 +132,12 @@ void Arv::liberar()
 }
 
 int Arv::countNodes(NoArv* root) {
-    // Base case: if the tree is empty, return 0
+    // Base case: se a árvore estiver vazia, return 0
     if (root == nullptr) {
         return 0;
     }
 
-    // Recursive case: count nodes in the left and right subtrees and add 1 for the current node
+    // Recursive case: conta nós nas subárvores esquerda e direita e adiciona 1 para o nó atual
     return 1 + countNodes(root->filho_esquerda) + countNodes(root->filho_direita);
 }
 
@@ -254,33 +255,36 @@ NoArv* Arv::retornaPonteiro(NoArv *no, int idx){
 
 
 
-void Arv::alteraIndices(NoArv* root, int& index) {
-    if (root == nullptr) {
-        return;
+void Arv::alteraIndices(NoArv* root, int* index) {
+    queue<NoArv*> fila;
+    fila.push(root);
+    NoArv* no_atual;
+    while(!fila.empty()){
+        no_atual = fila.front();
+        fila.pop();
+        no_atual->idx = *index;
+        if(no_atual->filho_esquerda != NULL){
+            fila.push(no_atual->filho_esquerda);
+        }
+        if(no_atual->filho_direita != NULL){
+            fila.push(no_atual->filho_direita);
+        }
+        (*index)++;
     }
-
-    // muda o índice do nó atual
-    root->idx = index;
-    index++;
-
-    // recursivamente muda os indices da subárvore esquerda
-    alteraIndices(root->filho_esquerda, index);
-
-    // recursivamente muda os indices da subárvore direita
-    alteraIndices(root->filho_direita, index);
 }
+
 
 
 void Arv::recombinaArv(Arv *arv2){
     //seleciona um nó aleatório da árvore 1 e um nó aleatório da árvore 2
     int rand_no;
     int rand_no2;
-    if(this->cont == 0){
+    if(this->cont == 1){
         rand_no = 0;
     }else{
         rand_no = rand()%(this->cont);
     }
-    if (arv2->cont == 0){
+    if (arv2->cont == 1){
         rand_no2 = 0;
     }else{
         rand_no2 = rand()%(arv2->cont);
@@ -294,36 +298,17 @@ void Arv::recombinaArv(Arv *arv2){
     sub1 = this->retornaPonteiro(this->raiz,rand_no);
     NoArv *sub2;
     sub2 = arv2->retornaPonteiro(arv2->raiz,rand_no2);
-    
 
     this->raiz = auxRecombina(this->raiz,this->raiz,sub2,rand_no);
     arv2->raiz = arv2->auxRecombina(arv2->raiz,arv2->raiz,sub1,rand_no2);
 
-    alteraIndices(sub2, rand_no);
-    alteraIndices(sub1, rand_no2);
+    int idx = 0;
+    alteraIndices(this->raiz, &idx);
+    alteraIndices(arv2->raiz, &idx);
     this->cont = this->countNodes(this->raiz);
     arv2->cont = arv2->countNodes(arv2->raiz);
 }
 
-// NoArv* Arv::auxRecombina(NoArv *no_atual,NoArv *novo, int idx){
-//     if(no_atual == NULL)
-//     {
-//         return NULL;
-//     }
-//     else if(no_atual->idx == idx){
-        
-//         alteraIndices(novo, idx);      //atualiza indices dos nós da subárvore que será inserida no lugar da subárvore removida
-//         return novo;      //retorna para o pai o ponteiro para a subárvore que será inserida no lugar da subárvore removida
-
-//     }else{
-
-//         no_atual->filho_esquerda = auxRecombina(no_atual->filho_esquerda,novo,idx);
-//         no_atual->filho_direita = auxRecombina(no_atual->filho_direita,novo,idx);
-
-//     }
-
-//     return no_atual;
-// }
 
 NoArv* Arv::auxRecombina(NoArv* pai, NoArv* no_atual, NoArv* novo, int idx) {
     if (no_atual == NULL) {
@@ -345,7 +330,6 @@ NoArv* Arv::auxRecombina(NoArv* pai, NoArv* no_atual, NoArv* novo, int idx) {
         no_atual->filho_esquerda = auxRecombina(no_atual, no_atual->filho_esquerda, novo, idx);
         no_atual->filho_direita = auxRecombina(no_atual, no_atual->filho_direita, novo, idx);
     }
-    //alteraIndices(novo, idx);      //atualiza indices dos nós da subárvore que será inserida no lugar da subárvore removida
     return no_atual;
 }
 
@@ -366,8 +350,10 @@ void Arv::mutaArv()
     sub_arv->implementa(sub_arv->raiz,0,operadores,variaveis,operadores.size(),variaveis.size());
 
     this->raiz = auxMuta(this->raiz, sub_arv->raiz, rand_no);
+    int idx = 0;
+    alteraIndices(this->raiz, &idx);
     sub_arv = NULL;
-    this->raiz = this->countNodes(this->raiz);
+    this->cont = this->countNodes(this->raiz);
 
     delete sub_arv;
 }
@@ -380,7 +366,6 @@ NoArv* Arv::auxMuta(NoArv *no_atual, NoArv *novo, int idx)
     }
     else if(no_atual->idx == idx){
         
-        alteraIndices(novo, idx);        //atualiza indices dos nós da subárvore que será inserida no lugar da subárvore removida
         libera(no_atual);       //retira o ponteiro para a subarvore que será removida
         
         return novo;        //retorna para o pai o ponteiro para a subárvore que será inserida no lugar da subárvore removida

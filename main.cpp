@@ -104,7 +104,7 @@ Arv* torneioArv(Arv** pop_inicial, int size_pop){
 int main(){
 
     int size_pop = 100;
-    int num_geracoes = 10;
+    int num_geracoes = 100;
 
     int seed = 98;
     srand(seed);
@@ -115,13 +115,15 @@ int main(){
     dados = leArquivo(&dados_l,&dados_c);
 
     Arv **pop_inicial = new Arv*[MAX_POP]; //Cria vetor de ponteiros para população inicial
-
     for (int i = 0; i < size_pop; i++)
     {
         pop_inicial[i] = new Arv;
         pop_inicial[i]->altura_max = ALTURA_MAX;
         pop_inicial[i]->raiz->info = operadores[rand()%operadores.size()]; //Inicializa a raiz da arvore com um operador aleatório
         pop_inicial[i]->implementa(pop_inicial[i]->raiz,0,operadores,variaveis,operadores.size(),variaveis.size());
+        int idx = 0;
+        pop_inicial[i]->alteraIndices(pop_inicial[i]->raiz,&idx);
+        pop_inicial[i]->cont = pop_inicial[i]->countNodes(pop_inicial[i]->raiz);
         pop_inicial[i]->calculaAptidao(dados,dados_l);
     }
 
@@ -131,7 +133,7 @@ int main(){
         Arv *rand_arv;
         Arv *rand_arv2;
         Arv **pop_geracional = new Arv*[MAX_POP]; //Cria vetor de ponteiros para população geracional
-
+        //cout << "Geração j = " << j << endl;
         for(int i=0;i<size_pop;i+=2){
             pop_geracional[i] = new Arv;
             pop_geracional[i+1] = new Arv;
@@ -140,12 +142,12 @@ int main(){
             rand_arv = torneioArv(pop_inicial, size_pop);
             rand_arv2 = torneioArv(pop_inicial, size_pop);
             
-            cout << "Geração j = " << j << " e indivíduo i = " << i << endl;
-            cout << "População parental: " << endl;
-            rand_arv->imprime();
-            cout << endl;
-            rand_arv2->imprime();
-            cout << endl;
+            //cout << "Geração j = " << j << " e indivíduos i = " << i << " e " << i+1 << endl;
+            // cout << "População parental: " << endl;
+            // rand_arv->imprime();
+            // cout << endl;
+            // rand_arv2->imprime();
+            // cout << endl;
             
 
             pop_geracional[i]->copiaArv(rand_arv->raiz);
@@ -153,29 +155,28 @@ int main(){
             pop_geracional[i+1]->copiaArv(rand_arv2->raiz);
             pop_geracional[i+1]->cont = rand_arv2->cont;
 
-            cout << "População geracional: " << endl;
-            pop_geracional[i]->imprime();
-            cout << endl;
-            pop_geracional[i+1]->imprime();
-            cout << endl;
+            // cout << "População geracional: " << endl;
+            // pop_geracional[i]->imprime();
+            // cout << endl;
+            // pop_geracional[i+1]->imprime();
+            // cout << endl;
 
             pop_geracional[i]->recombinaArv(pop_geracional[i+1]);
             
-            cout << "População geracional após recombinação: " << endl;
-            pop_geracional[i]->imprime();
-            cout << endl;
-            pop_geracional[i+1]->imprime();
-            cout << endl;
+            // cout << "População geracional após recombinação: " << endl;
+            // pop_geracional[i]->imprime();
+            // cout << endl;
+            // pop_geracional[i+1]->imprime();
+            // cout << endl;
             
             pop_geracional[i]->mutaArv();
             pop_geracional[i+1]->mutaArv();
-            cout << "População geracional após mutação: " << endl;
-            pop_geracional[i]->imprime();
-            cout << endl;
-            pop_geracional[i+1]->imprime();
-            cout << endl;
-            pop_geracional[i]->cont = pop_geracional[i]->countNodes(pop_geracional[i]->raiz);
-            pop_geracional[i+1]->cont = pop_geracional[i+1]->countNodes(pop_geracional[i+1]->raiz);
+            // cout << "População geracional após mutação: " << endl;
+            // pop_geracional[i]->imprime();
+            // cout << endl;
+            // pop_geracional[i+1]->imprime();
+            // cout << endl;
+            
             pop_geracional[i]->calculaAptidao(dados,dados_l);
             pop_geracional[i+1]->calculaAptidao(dados,dados_l);
         }
