@@ -118,8 +118,12 @@ NoArv* Arv::libera(NoArv *no)
 {
     if(no != NULL)
     {
-        no->filho_esquerda = libera(no->filho_esquerda);
-        no->filho_direita = libera(no->filho_direita);
+        if(no->filho_esquerda == NULL){
+            no->filho_esquerda = libera(no->filho_esquerda);
+        }
+        if(no->filho_direita == NULL){
+            no->filho_direita = libera(no->filho_direita);
+        }
         delete no;
         cont--;
     }

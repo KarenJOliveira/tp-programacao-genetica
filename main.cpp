@@ -80,10 +80,8 @@ void substituiPop(Arv **pop_inicial,Arv** pop_geracional, int size_pop){
         }
     }
 
-    Arv *aux = pop_geracional[menos_eficiente];
-    pop_geracional[menos_eficiente] = pop_inicial[mais_eficiente];
-    pop_inicial[mais_eficiente] = aux;
-    aux = NULL;
+    pop_geracional[menos_eficiente]->liberar();
+    pop_geracional[menos_eficiente]->copiaArv(pop_inicial[mais_eficiente]->raiz);
 }
 
 Arv* torneioArv(Arv** pop_inicial, int size_pop){
@@ -133,7 +131,7 @@ int main(){
         Arv *rand_arv;
         Arv *rand_arv2;
         Arv **pop_geracional = new Arv*[MAX_POP]; //Cria vetor de ponteiros para população geracional
-        //cout << "Geração j = " << j << endl;
+        cout << "Geração j = " << j << endl;
         for(int i=0;i<size_pop;i+=2){
             pop_geracional[i] = new Arv;
             pop_geracional[i+1] = new Arv;
