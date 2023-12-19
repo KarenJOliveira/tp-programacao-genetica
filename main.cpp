@@ -8,7 +8,7 @@
 #include <string>
 #include <fstream>
 #include <sstream>
-#define ALTURA_MAX 10
+#define ALTURA_MAX 4
 #define MAX_POP 5000
 #define MAX_GER 10
 
@@ -18,7 +18,7 @@ using namespace std;
 float** leArquivo(int *dados_l,int *dados_c){
     
     fstream file;
-    file.open("data.csv", ios::in);
+    file.open("function_9_data.csv", ios::in);
 
     if(file.is_open()){
         cout << "Arquivo aberto com sucesso" << endl;
@@ -26,37 +26,36 @@ float** leArquivo(int *dados_l,int *dados_c){
         cout << "Erro ao abrir o arquivo" << endl;
         exit(1);
     }
-    
-    string linha,tam;
-
-    getline(file,linha);
-    getline(file,linha,',');
-    stringstream ss(linha);
-    ss >> (*dados_l);
-    getline(file,linha,',');
-    stringstream ss2(linha);
-    ss2 >> (*dados_c);
-
-    float **dados;
-    getline(file,linha);
-    linha.clear();
-
     string line;
-    dados = new float*[(*dados_l)];
-    for(int i=0;i<(*dados_l);i++){
-        dados[i] = new float[(*dados_c)];
-        for(int j=0;j<(*dados_c)-1;j++){
+    for(int i = 0;i<2;i++){
+        getline(file,line,',');
+        if(line == "rows"){
+            getline(file,line);
+            stringstream ss(line);
+            ss >> *dados_l;
+        }else{
+            getline(file,line);
+            stringstream ss(line);
+            ss >> *dados_c;
+        }
+    }
+    getline(file,line);
+    line.clear();
+
+    float **dados = new float*[*dados_l];
+    for(int l=0;l<*dados_l+1;l++){
+        dados[l] = new float[*dados_c];
+        for(int c=0;c<*dados_c-1;c++){
+            string line;
             getline(file,line,',');
-            //cout << line << endl;
-            stringstream s(line);
-            s >> dados[i][j]; 
+            stringstream ss(line);
+            ss >> dados[l][c];  
         }
         getline(file,line);
-        //cout << line << endl;
-        stringstream s(line);
-        s >> dados[i][(*dados_c)-1];
+        stringstream ss(line);
+        ss >> dados[l][*dados_c-1];
     }
-
+    
     return dados;
 }
 
@@ -101,8 +100,8 @@ Arv* torneioArv(Arv** pop_inicial, int size_pop){
 
 int main(){
 
-    int size_pop = 100;
-    int num_geracoes = 100;
+    int size_pop = 500;
+    int num_geracoes = 50;
 
     int seed = 98;
     srand(seed);
@@ -111,6 +110,7 @@ int main(){
     
     float **dados;
     dados = leArquivo(&dados_l,&dados_c);
+
 
     Arv **pop_inicial = new Arv*[MAX_POP]; //Cria vetor de ponteiros para população inicial
     for (int i = 0; i < size_pop; i++)
@@ -122,7 +122,7 @@ int main(){
         int idx = 0;
         pop_inicial[i]->alteraIndices(pop_inicial[i]->raiz,&idx);
         pop_inicial[i]->cont = pop_inicial[i]->countNodes(pop_inicial[i]->raiz);
-        pop_inicial[i]->calculaAptidao(dados,dados_l);
+        pop_inicial[i]->calculaAptidao(dados,dados_l,dados_c);
     }
 
     
@@ -131,7 +131,7 @@ int main(){
         Arv *rand_arv;
         Arv *rand_arv2;
         Arv **pop_geracional = new Arv*[MAX_POP]; //Cria vetor de ponteiros para população geracional
-        cout << "Geração j = " << j << endl;
+        //cout << "Geração j = " << j << endl;
         for(int i=0;i<size_pop;i+=2){
             pop_geracional[i] = new Arv;
             pop_geracional[i+1] = new Arv;
@@ -175,15 +175,15 @@ int main(){
             // pop_geracional[i+1]->imprime();
             // cout << endl;
             
-            pop_geracional[i]->calculaAptidao(dados,dados_l);
-            pop_geracional[i+1]->calculaAptidao(dados,dados_l);
+            pop_geracional[i]->calculaAptidao(dados,dados_l,dados_c);
+            pop_geracional[i+1]->calculaAptidao(dados,dados_l,dados_c);
         }
         
         substituiPop(pop_inicial,pop_geracional,size_pop);
         
         
         for (int k = 0; k < size_pop; k++) {
-            delete pop_inicial[k];  // Deleta dados antigos de pop_inicial
+            pop_inicial[k]->liberar();  // Deleta dados antigos de pop_inicial
             pop_inicial[k] = pop_geracional[k];  // Transfere o ponteiro
             // cout << "População geracional: " << endl;
             // pop_geracional[k]->imprime();
@@ -194,11 +194,19 @@ int main(){
         delete[] pop_geracional;
     }
 
-for (int k = 0; k < size_pop; k++) {
-    delete pop_inicial[k];  // Delete old data in pop_inicial
-}
+    //avaliar a população final
+    // for (int i = 0; i < size_pop; i++)
+    // {
+    //     pop_inicial[i]->imprime();
+    //     cout << endl;
+    // }
+    
 
-delete [] pop_inicial;
+    for (int k = 0; k < size_pop; k++) {
+        delete pop_inicial[k];  // Delete old data in pop_inicial
+    }   
+
+    delete [] pop_inicial;
 
     return 0;
 }

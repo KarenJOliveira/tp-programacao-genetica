@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cmath>
 #define MAX_PILHA 150000
 using namespace std;
 
@@ -47,7 +48,7 @@ typedef struct Pilha{
         void empilha(Item data);
         Item desempilha();
         void copia_pilha(Pilha *p2);
-        float resolve_operacoes(float x,float y,float z);
+        float resolve_operacoes(float **dados, int l);
 
         //No* aloca_pilha();
 
@@ -121,11 +122,11 @@ void Pilha::copia_pilha(Pilha *p2){
     }
 }
 
-float Pilha::resolve_operacoes(float x,float y,float z){
+float Pilha::resolve_operacoes(float **dados, int l){
     Pilha *p2 = new Pilha;
     copia_pilha(p2);
     Pilha aux;
-
+    
     while(!p2->vazia()){
         Item temp = p2->desempilha();
         if(temp.ehOperador){
@@ -169,21 +170,49 @@ float Pilha::resolve_operacoes(float x,float y,float z){
             {
             case 'x':
             {
-                aux_.n = x;
+                aux_.n = dados[l][0];
                 aux_.ehOperador = false;
                 aux.empilha(aux_);
                 break;
             }
             case 'y':
             {
-                aux_.n = y;
+                aux_.n = dados[l][1];
                 aux_.ehOperador = false;
                 aux.empilha(aux_);
                 break;
             }
             case 'z':
             {
-                aux_.n = z;
+                aux_.n = dados[l][2];
+                aux_.ehOperador = false;
+                aux.empilha(aux_);
+                break;
+            }
+            case 'w':
+            {
+                aux_.n = dados[l][3];
+                aux_.ehOperador = false;
+                aux.empilha(aux_);
+                break;
+            }
+            case 'p':
+            {
+                aux_.n = dados[l][4];
+                aux_.ehOperador = false;
+                aux.empilha(aux_);
+                break;
+            }
+            case 'q':
+            {
+                aux_.n = dados[l][5];
+                aux_.ehOperador = false;
+                aux.empilha(aux_);
+                break;
+            }
+            case 'r':
+            {
+                aux_.n = dados[l][6];
                 aux_.ehOperador = false;
                 aux.empilha(aux_);
                 break;

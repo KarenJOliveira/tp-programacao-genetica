@@ -77,7 +77,7 @@ public:
     int countNodes(NoArv* root);
     void implementa(NoArv *no,int altura, vector<char> operadores, vector<char> variaveis, int size_op, int size_var);
     void empilhaArv(NoArv *no,Pilha *p);
-    void calculaAptidao(float **dados, int dados_l);
+    void calculaAptidao(float **dados, int dados_l, int dados_c);
     NoArv* auxMuta(NoArv *no_atual, NoArv *novo, int idx);
     NoArv* retornaPonteiro(NoArv *no, int idx);
     void alteraIndices(NoArv* root, int* index);
@@ -220,7 +220,7 @@ NoArv* Arv::auxCopia(NoArv* source) {
     return destination;
 }
 
-void Arv::calculaAptidao(float **dados, int dados_l){
+void Arv::calculaAptidao(float **dados, int dados_l, int dados_c){
     Pilha *p = new Pilha;
     //this->imprime();
     //cout << endl;
@@ -228,15 +228,23 @@ void Arv::calculaAptidao(float **dados, int dados_l){
     float resultado = 0;
     float somatorio = 0;
     float diferenca = 0;
-    
-
+    //vetor dados
+    int aux = 0;
     for(int i=0;i<dados_l;i++){
-        resultado = p->resolve_operacoes(dados[i][0], dados[i][1], dados[i][2]); //Substitui as variaveis pelos valores nos dados e resolve a expressão gerada pelos nós
-        diferenca = dados[i][3] - resultado;
+        resultado = p->resolve_operacoes(dados, i); //Substitui as variaveis pelos valores nos dados e resolve a expressão gerada pelos nós
+        //cout << "Resultado esperado: " << dados[i][dados_c-1] << " " << "Resultado obtido: " << resultado << endl;
+        diferenca = dados[i][dados_c-1] - resultado;
+        if(diferenca >= 0 && diferenca <= 5){
+            aux++;
+        }
         somatorio += pow(diferenca,2); // Calcula o somatório do erro quadrático(Média da diferença quadrática entre a predição do modelo e o valor de destino)
     }
+    if(aux > 0){
+        this->imprime();
+        cout << endl;
+    }
 
-    this->aptidao = somatorio;
+    this->aptidao = somatorio/dados_l;
     
     delete p;
 }
@@ -349,7 +357,7 @@ void Arv::mutaArv()
     }
    
     Arv *sub_arv = new Arv;
-    sub_arv->altura_max = ALTURA_MAX;
+    sub_arv->altura_max = this->altura_max;
     sub_arv->raiz->info = operadores[rand()%operadores.size()];
     sub_arv->implementa(sub_arv->raiz,0,operadores,variaveis,operadores.size(),variaveis.size());
 
