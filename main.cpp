@@ -8,9 +8,9 @@
 #include <string>
 #include <fstream>
 #include <sstream>
-#define ALTURA_MAX 4
+#define ALTURA_MAX 10
 #define MAX_POP 5000
-#define MAX_GER 10
+#define MAX_GER 50
 
 
 using namespace std;
@@ -59,6 +59,25 @@ float** leArquivo(int *dados_l,int *dados_c){
     return dados;
 }
 
+void createFile(Arv *melhor_arv){
+    cout << "Criando arquivo" << endl;
+    string arv_expression = "";
+    string nome_arquivo = "pop_melhores/funcao9.csv";
+    fstream file;
+    file.open(nome_arquivo, ios::out);
+    if(file.is_open()){
+        cout << "Arquivo aberto com sucesso" << endl;
+    } else {
+        cout << "Erro ao abrir o arquivo" << endl;
+        exit(1);
+    }
+
+    arv_expression = melhor_arv->retornaArvExp();
+    file << "aptidao,arvore" << "\n";
+    file << melhor_arv->aptidao << "," << arv_expression << "\n";
+    file.close();
+}
+
 
 
 //procurar qual o melhor elemento e colocar no vetor filho
@@ -68,13 +87,13 @@ void substituiPop(Arv **pop_inicial,Arv** pop_geracional, int size_pop){
     int menos_eficiente = 0;
 
     for(int i = 0; i < size_pop; i++){
-        if(pop_inicial[i]->aptidao > pop_inicial[mais_eficiente]->aptidao){
+        if(pop_inicial[i]->aptidao < pop_inicial[mais_eficiente]->aptidao){
             mais_eficiente = i;
         }
     }
 
     for(int i = 0; i < size_pop; i++){
-        if(pop_geracional[i]->aptidao < pop_geracional[menos_eficiente]->aptidao){
+        if(pop_geracional[i]->aptidao > pop_geracional[menos_eficiente]->aptidao){
             menos_eficiente = i;
         }
     }
@@ -102,15 +121,19 @@ int main(){
 
     int size_pop = 500;
     int num_geracoes = 50;
+    float taxa_cruzamento = 90;
+    float taxa_mutacao = 90;
 
-    int seed = 98;
+    
+    
+    int seed = 3373;
     srand(seed);
     int dados_l;
     int dados_c;
     
     float **dados;
     dados = leArquivo(&dados_l,&dados_c);
-
+    Arv **pop_melhores = new Arv*[MAX_POP];
 
     Arv **pop_inicial = new Arv*[MAX_POP]; //Cria vetor de ponteiros para população inicial
     for (int i = 0; i < size_pop; i++)
@@ -125,8 +148,8 @@ int main(){
         pop_inicial[i]->calculaAptidao(dados,dados_l,dados_c);
     }
 
-    
-    for(int j=0;j<num_geracoes;j++){
+    int j;
+    for(j=0;j<num_geracoes;j++){
 
         Arv *rand_arv;
         Arv *rand_arv2;
@@ -140,43 +163,25 @@ int main(){
             rand_arv = torneioArv(pop_inicial, size_pop);
             rand_arv2 = torneioArv(pop_inicial, size_pop);
             
-            //cout << "Geração j = " << j << " e indivíduos i = " << i << " e " << i+1 << endl;
-            // cout << "População parental: " << endl;
-            // rand_arv->imprime();
-            // cout << endl;
-            // rand_arv2->imprime();
-            // cout << endl;
-            
-
             pop_geracional[i]->copiaArv(rand_arv->raiz);
             pop_geracional[i]->cont = rand_arv->cont;
             pop_geracional[i+1]->copiaArv(rand_arv2->raiz);
             pop_geracional[i+1]->cont = rand_arv2->cont;
 
-            // cout << "População geracional: " << endl;
-            // pop_geracional[i]->imprime();
-            // cout << endl;
-            // pop_geracional[i+1]->imprime();
-            // cout << endl;
 
-            pop_geracional[i]->recombinaArv(pop_geracional[i+1]);
+            if(rand()%100 < taxa_cruzamento){
+                pop_geracional[i]->recombinaArv(pop_geracional[i+1]);
+            }
             
-            // cout << "População geracional após recombinação: " << endl;
-            // pop_geracional[i]->imprime();
-            // cout << endl;
-            // pop_geracional[i+1]->imprime();
-            // cout << endl;
-            
-            pop_geracional[i]->mutaArv();
-            pop_geracional[i+1]->mutaArv();
-            // cout << "População geracional após mutação: " << endl;
-            // pop_geracional[i]->imprime();
-            // cout << endl;
-            // pop_geracional[i+1]->imprime();
-            // cout << endl;
+            if(rand()%100 < taxa_mutacao){
+                pop_geracional[i]->mutaArv();
+                pop_geracional[i+1]->mutaArv();
+            }
             
             pop_geracional[i]->calculaAptidao(dados,dados_l,dados_c);
+            //cout << "Aptidão do primeiro filho: " << pop_geracional[i]->aptidao << endl;
             pop_geracional[i+1]->calculaAptidao(dados,dados_l,dados_c);
+            //cout << "Aptidão do segundo filho: " << pop_geracional[i+1]->aptidao << endl;
         }
         
         substituiPop(pop_inicial,pop_geracional,size_pop);
@@ -184,28 +189,55 @@ int main(){
         
         for (int k = 0; k < size_pop; k++) {
             pop_inicial[k]->liberar();  // Deleta dados antigos de pop_inicial
-            pop_inicial[k] = pop_geracional[k];  // Transfere o ponteiro
+            pop_inicial[k]->copiaArv(pop_geracional[k]->raiz);
+            pop_inicial[k]->cont = pop_geracional[k]->cont;
+            pop_inicial[k]->calculaAptidao(dados,dados_l,dados_c);
             // cout << "População geracional: " << endl;
             // pop_geracional[k]->imprime();
             // cout << endl;
-            pop_geracional[k] = nullptr;  // Set pop_geracional[k] to nullptr to avoid deleting it later
+            pop_geracional[k]->liberar();  // Deleta dados de pop_geracional
         }
+
+        int mais_eficiente = 0;
+        int apt1, apt2;
+        for (int i = 1; i < size_pop; i++)
+        {
+            apt1 = pop_inicial[i]->aptidao;
+            apt2 = pop_inicial[mais_eficiente]->aptidao;
+            
+            if(pop_inicial[i]->aptidao < pop_inicial[mais_eficiente]->aptidao){
+                mais_eficiente = i;
+            }
+        }
+        
+        cout << pop_inicial[mais_eficiente]->aptidao << endl;
+        
+        pop_melhores[j] = new Arv;
+        pop_melhores[j]->copiaArv(pop_inicial[mais_eficiente]->raiz);
+        pop_melhores[j]->cont = pop_inicial[mais_eficiente]->cont;
+        pop_melhores[j]->aptidao = pop_inicial[mais_eficiente]->aptidao;
 
         delete[] pop_geracional;
     }
 
     //avaliar a população final
-    // for (int i = 0; i < size_pop; i++)
-    // {
-    //     pop_inicial[i]->imprime();
-    //     cout << endl;
-    // }
+    cout << "Avaliando população final" << endl;
+    int melhor = 0;
+    for (int i = 0; i < j; i++)
+    {
+        if(pop_melhores[i]->aptidao < pop_melhores[melhor]->aptidao){
+            melhor = i;
+        }
+    }
     
+    //createFile(pop_melhores[melhor]);
 
-    for (int k = 0; k < size_pop; k++) {
-        delete pop_inicial[k];  // Delete old data in pop_inicial
+    for (int i = 0; i < size_pop; i++) {
+        delete pop_inicial[i];  // Delete old data in pop_inicial
+        delete pop_melhores[i];
     }   
 
+    delete [] pop_melhores;
     delete [] pop_inicial;
 
     return 0;

@@ -14,7 +14,7 @@
 #define ALTURA_MAX 10
 using namespace std;
 
-vector<char> variaveis = {'x','y','z'};
+vector<char> variaveis = {'x','y'};
 vector<char> operadores = {'+','-','*','/'};
 
 typedef struct NoArv
@@ -77,6 +77,7 @@ public:
     int countNodes(NoArv* root);
     void implementa(NoArv *no,int altura, vector<char> operadores, vector<char> variaveis, int size_op, int size_var);
     void empilhaArv(NoArv *no,Pilha *p);
+    string retornaArvExp();
     void calculaAptidao(float **dados, int dados_l, int dados_c);
     NoArv* auxMuta(NoArv *no_atual, NoArv *novo, int idx);
     NoArv* retornaPonteiro(NoArv *no, int idx);
@@ -193,6 +194,19 @@ void Arv::empilhaArv(NoArv *no,Pilha *p){
         p->empilha(aux);
     }
 }
+
+string Arv::retornaArvExp(){
+    Pilha p;
+    this->empilhaArv(this->raiz,&p);
+    string arv_expression = "";
+    while(!p.vazia()){
+        Item aux = p.desempilha();
+        arv_expression += (char)aux.n;
+        arv_expression += ",";
+    }
+    return arv_expression;
+}
+
 void Arv::copiaArv(NoArv *source){
     raiz = auxCopia(source);
 }
@@ -228,22 +242,14 @@ void Arv::calculaAptidao(float **dados, int dados_l, int dados_c){
     float resultado = 0;
     float somatorio = 0;
     float diferenca = 0;
-    //vetor dados
-    int aux = 0;
+    
     for(int i=0;i<dados_l;i++){
         resultado = p->resolve_operacoes(dados, i); //Substitui as variaveis pelos valores nos dados e resolve a expressão gerada pelos nós
         //cout << "Resultado esperado: " << dados[i][dados_c-1] << " " << "Resultado obtido: " << resultado << endl;
         diferenca = dados[i][dados_c-1] - resultado;
-        if(diferenca >= 0 && diferenca <= 5){
-            aux++;
-        }
         somatorio += pow(diferenca,2); // Calcula o somatório do erro quadrático(Média da diferença quadrática entre a predição do modelo e o valor de destino)
     }
-    if(aux > 0){
-        this->imprime();
-        cout << endl;
-    }
-
+   
     this->aptidao = somatorio/dados_l;
     
     delete p;
@@ -263,8 +269,6 @@ NoArv* Arv::retornaPonteiro(NoArv *no, int idx){
         return aux;
     }
 }
-
-
 
 
 void Arv::alteraIndices(NoArv* root, int* index) {
@@ -316,6 +320,7 @@ void Arv::recombinaArv(Arv *arv2){
 
     int idx = 0;
     alteraIndices(this->raiz, &idx);
+    idx = 0;
     alteraIndices(arv2->raiz, &idx);
     this->cont = this->countNodes(this->raiz);
     arv2->cont = arv2->countNodes(arv2->raiz);
