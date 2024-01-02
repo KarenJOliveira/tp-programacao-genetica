@@ -129,7 +129,7 @@ def F21(x1, x2, x3, x4, x5):
 
 
 # Number of rows and range for random values
-num_rows = 50
+num_rows = 50000
 value_range = (-5, 5)
 
 # Generate and write data for each function
@@ -142,7 +142,7 @@ for i, func in enumerate([F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12, F13
         sample_data.append(row_data)
 
     # File name for the CSV file
-    csv_file_name = f'function_{i + 1}_data.csv'
+    csv_file_name = f'function_{i + 1}_50k_data.csv'
 
     # Generating CSV file
     with open(csv_file_name, 'w', newline='') as csvfile:

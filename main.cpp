@@ -58,9 +58,35 @@ float** leArquivo(int *dados_l,int *dados_c){
     
     return dados;
 }
+/*
+Arv* leArv(){
+    Arv **pop_melhores = new Arv*[MAX_POP];
+    
+    fstream file;
+    file.open("pop_melhores/funcao9.csv", ios::in);
+    if(file.is_open()){
+        cout << "Arquivo aberto com sucesso" << endl;
+    } else {
+        cout << "Erro ao abrir o arquivo" << endl;
+        exit(1);
+    }
+    string line;
+    getline(file,line);
+    line.clear();
+    while(getline(file,line)){
+        stringstream ss(line);
+        string aptidao;
+        string arv_expression;
+        Arv *arv = new Arv;
+        getline(ss,aptidao,',');
+        arv->aptidao = stof(aptidao);
+        
+    }
+}
+*/
 
 void createFile(Arv *melhor_arv){
-    cout << "Criando arquivo" << endl;
+    //cout << "Criando arquivo" << endl;
     string arv_expression = "";
     string nome_arquivo = "pop_melhores/funcao9.csv";
     fstream file;
@@ -123,10 +149,8 @@ int main(){
     int num_geracoes = 50;
     float taxa_cruzamento = 90;
     float taxa_mutacao = 90;
-
     
-    
-    int seed = 3373;
+    int seed = 98;
     srand(seed);
     int dados_l;
     int dados_c;
@@ -210,7 +234,7 @@ int main(){
             }
         }
         
-        cout << pop_inicial[mais_eficiente]->aptidao << endl;
+        //cout << pop_inicial[mais_eficiente]->aptidao << endl;
         
         pop_melhores[j] = new Arv;
         pop_melhores[j]->copiaArv(pop_inicial[mais_eficiente]->raiz);
@@ -221,20 +245,18 @@ int main(){
     }
 
     //avaliar a população final
-    cout << "Avaliando população final" << endl;
-    int melhor = 0;
+    //int melhor = 0;
     for (int i = 0; i < j; i++)
     {
-        if(pop_melhores[i]->aptidao < pop_melhores[melhor]->aptidao){
-            melhor = i;
-        }
+        // if(pop_melhores[i]->aptidao < pop_melhores[melhor]->aptidao){
+        //     melhor = i;
+        // }
+        createFile(pop_melhores[i]);
+        delete pop_melhores[i];
     }
-    
-    //createFile(pop_melhores[melhor]);
 
     for (int i = 0; i < size_pop; i++) {
         delete pop_inicial[i];  // Delete old data in pop_inicial
-        delete pop_melhores[i];
     }   
 
     delete [] pop_melhores;
