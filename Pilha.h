@@ -151,10 +151,45 @@ float Pilha::resolve_operacoes(float **dados, int l){
             case '/':
             {
                 if(b == 0){
+                    result = 0;
                     //cout << "ERRO: Divisão por valor nulo" << endl;
                 }else{
                     result = a / b;
                 }
+                break;
+            }
+            case '^':
+                result = pow(a,b);
+                break;
+            case 'S':
+            {   result = sin(a);
+                Item b_;
+                b_.n = (char)b;
+                aux.empilha(b_);
+                break;
+            }
+            case 'C':
+            {
+                result = cos(a);
+                Item b_;
+                b_.n = (char)b;
+                aux.empilha(b_);
+                break;
+            }
+            case 'T':
+            {
+                result = tan(a);
+                Item b_;
+                b_.n = (char)b;
+                aux.empilha(b_);
+                break;
+            }
+            case 'e':
+            {
+                result = exp(a);
+                Item b_;
+                b_.n = (char)b;
+                aux.empilha(b_);
                 break;
             }
             default:
@@ -210,9 +245,16 @@ float Pilha::resolve_operacoes(float **dados, int l){
                 aux.empilha(aux_);
                 break;
             }
-            case 'r':
+            case 'm':
             {
                 aux_.n = dados[l][6];
+                aux_.ehOperador = false;
+                aux.empilha(aux_);
+                break;
+            }
+            case 'n':
+            {
+                aux_.n = dados[l][7];
                 aux_.ehOperador = false;
                 aux.empilha(aux_);
                 break;

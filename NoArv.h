@@ -14,8 +14,8 @@
 #define ALTURA_MAX 10
 using namespace std;
 
-vector<char> variaveis = {'x','y'};
-vector<char> operadores = {'+','-','*','/'};
+vector<char> variaveis = {'x','y','z'};
+vector<char> operadores = {'+','-','*','/','^'};
 
 typedef struct NoArv
 {
@@ -77,6 +77,7 @@ public:
     int countNodes(NoArv* root);
     void implementa(NoArv *no,int altura, vector<char> operadores, vector<char> variaveis, int size_op, int size_var);
     void empilhaArv(NoArv *no,Pilha *p);
+    void desempilhaArv(NoArv *no,Pilha *p);
     string retornaArvExp();
     void calculaAptidao(float **dados, int dados_l, int dados_c);
     NoArv* auxMuta(NoArv *no_atual, NoArv *novo, int idx);
@@ -195,6 +196,28 @@ void Arv::empilhaArv(NoArv *no,Pilha *p){
     }
 }
 
+void Arv::desempilhaArv(NoArv* no,Pilha *p){
+    if(p->vazia()){
+        return;
+    }
+
+    Item aux = p->desempilha();
+    if(aux.ehOperador){
+        no->info = static_cast<char>(aux.n);
+        no->ehOperador = true;
+        no->filho_esquerda = new NoArv;
+        no->filho_direita = new NoArv;
+        
+    }else{
+        no->info = static_cast<char>(aux.n);
+        no->ehOperador = false;
+        return;
+    }
+
+    desempilhaArv(no->filho_esquerda,p);
+    desempilhaArv(no->filho_direita,p);
+}
+
 string Arv::retornaArvExp(){
     Pilha p;
     this->empilhaArv(this->raiz,&p);
@@ -202,7 +225,10 @@ string Arv::retornaArvExp(){
     while(!p.vazia()){
         Item aux = p.desempilha();
         arv_expression += (char)aux.n;
-        arv_expression += ",";
+        if(p.vazia()){
+            break;
+        }
+        arv_expression += " ";
     }
     return arv_expression;
 }

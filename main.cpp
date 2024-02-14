@@ -8,6 +8,7 @@
 #include <string>
 #include <fstream>
 #include <sstream>
+#include <stack>
 #define ALTURA_MAX 10
 #define MAX_POP 5000
 #define MAX_GER 50
@@ -15,10 +16,10 @@
 
 using namespace std;
 
-float** leArquivo(int *dados_l,int *dados_c){
+float** leArquivo(int *dados_l,int *dados_c, string filename){
     
     fstream file;
-    file.open("function_9_data.csv", ios::in);
+    file.open(filename, ios::in);
 
     if(file.is_open()){
         cout << "Arquivo aberto com sucesso" << endl;
@@ -58,39 +59,14 @@ float** leArquivo(int *dados_l,int *dados_c){
     
     return dados;
 }
-/*
-Arv* leArv(){
-    Arv **pop_melhores = new Arv*[MAX_POP];
-    
-    fstream file;
-    file.open("pop_melhores/funcao9.csv", ios::in);
-    if(file.is_open()){
-        cout << "Arquivo aberto com sucesso" << endl;
-    } else {
-        cout << "Erro ao abrir o arquivo" << endl;
-        exit(1);
-    }
-    string line;
-    getline(file,line);
-    line.clear();
-    while(getline(file,line)){
-        stringstream ss(line);
-        string aptidao;
-        string arv_expression;
-        Arv *arv = new Arv;
-        getline(ss,aptidao,',');
-        arv->aptidao = stof(aptidao);
-        
-    }
-}
-*/
 
-void createFile(Arv *melhor_arv){
+
+void createFile(Arv *melhor_arv, string filename){
     //cout << "Criando arquivo" << endl;
     string arv_expression = "";
-    string nome_arquivo = "pop_melhores/funcao9.csv";
-    fstream file;
-    file.open(nome_arquivo, ios::out);
+    string nome_arquivo = filename;
+    ofstream file;
+    file.open(nome_arquivo, ios::app);
     if(file.is_open()){
         cout << "Arquivo aberto com sucesso" << endl;
     } else {
@@ -99,8 +75,8 @@ void createFile(Arv *melhor_arv){
     }
 
     arv_expression = melhor_arv->retornaArvExp();
-    file << "aptidao,arvore" << "\n";
-    file << melhor_arv->aptidao << "," << arv_expression << "\n";
+    //file << "\n";
+    file << arv_expression << "," << endl;
     file.close();
 }
 
@@ -143,20 +119,27 @@ Arv* torneioArv(Arv** pop_inicial, int size_pop){
 }
 
 
-int main(){
+int main(int argc, char *argv[]){
 
     int size_pop = 500;
     int num_geracoes = 50;
+
     float taxa_cruzamento = 90;
     float taxa_mutacao = 90;
+
+    int numFuncao = stoi(argv[1]);
+    int qntDados = stoi(argv[2]);
     
-    int seed = 98;
+    // Constrói o nome do arquivo com base nos valores de X e Y
+    string filename = "function_n_data/funcao" + to_string(numFuncao) + "/function_" + to_string(numFuncao) + "_" + to_string(qntDados) + "_data.csv";
+
+    int seed = stoi(argv[3]);
     srand(seed);
     int dados_l;
     int dados_c;
     
     float **dados;
-    dados = leArquivo(&dados_l,&dados_c);
+    dados = leArquivo(&dados_l,&dados_c, filename);
     Arv **pop_melhores = new Arv*[MAX_POP];
 
     Arv **pop_inicial = new Arv*[MAX_POP]; //Cria vetor de ponteiros para população inicial
@@ -223,12 +206,9 @@ int main(){
         }
 
         int mais_eficiente = 0;
-        int apt1, apt2;
+        
         for (int i = 1; i < size_pop; i++)
         {
-            apt1 = pop_inicial[i]->aptidao;
-            apt2 = pop_inicial[mais_eficiente]->aptidao;
-            
             if(pop_inicial[i]->aptidao < pop_inicial[mais_eficiente]->aptidao){
                 mais_eficiente = i;
             }
@@ -245,22 +225,30 @@ int main(){
     }
 
     //avaliar a população final
-    //int melhor = 0;
+    
+    int melhor = 0;
     for (int i = 0; i < j; i++)
     {
-        // if(pop_melhores[i]->aptidao < pop_melhores[melhor]->aptidao){
-        //     melhor = i;
-        // }
-        createFile(pop_melhores[i]);
-        delete pop_melhores[i];
+        if(pop_melhores[i]->aptidao < pop_melhores[melhor]->aptidao){
+            melhor = i;
+        }
     }
-
+    cout << "Dados de treinamento" << endl;
+    cout << "Aptidão da melhor árvore: " << pop_melhores[melhor]->aptidao << endl;
+    //string filename_melhor = "pop_melhor6es/funcao" + to_string(numFuncao) + ".csv";
+    //createFile(pop_melhores[melhor], filename_melhor);
+    //cout << "Arquivo criado com sucesso" << endl;
+    for (int i = 0; i < j; i++)
+    {
+        pop_melhores[i]->liberar();
+    }
     for (int i = 0; i < size_pop; i++) {
-        delete pop_inicial[i];  // Delete old data in pop_inicial
+        pop_inicial[i]->liberar();  // Delete old data in pop_inicial
     }   
 
     delete [] pop_melhores;
     delete [] pop_inicial;
+
 
     return 0;
 }
