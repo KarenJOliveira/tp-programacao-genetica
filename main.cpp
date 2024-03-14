@@ -42,9 +42,9 @@ float** leArquivo(int *dados_l,int *dados_c, string filename){
     }
     getline(file,line);
     line.clear();
-
     float **dados = new float*[*dados_l];
-    for(int l=0;l<*dados_l+1;l++){
+    for(int l=0;l<*dados_l;l++){
+        //cout << l << endl;
         dados[l] = new float[*dados_c];
         for(int c=0;c<*dados_c-1;c++){
             string line;
@@ -126,14 +126,15 @@ int main(int argc, char *argv[]){
 
     float taxa_cruzamento = 90;
     float taxa_mutacao = 90;
-
+    
     int numFuncao = stoi(argv[1]);
     int qntDados = stoi(argv[2]);
     
     // Constrói o nome do arquivo com base nos valores de X e Y
     string filename = "function_n_data/funcao" + to_string(numFuncao) + "/function_" + to_string(numFuncao) + "_" + to_string(qntDados) + "_data.csv";
-
+    //string filename = "data.csv";
     int seed = stoi(argv[3]);
+    //int seed = 98;
     srand(seed);
     int dados_l;
     int dados_c;
@@ -146,7 +147,7 @@ int main(int argc, char *argv[]){
     for (int i = 0; i < size_pop; i++)
     {
         pop_inicial[i] = new Arv;
-        pop_inicial[i]->altura_max = ALTURA_MAX;
+        pop_inicial[i]->altura_max = rand()%(10+1); // todo: variar
         pop_inicial[i]->raiz->info = operadores[rand()%operadores.size()]; //Inicializa a raiz da arvore com um operador aleatório
         pop_inicial[i]->implementa(pop_inicial[i]->raiz,0,operadores,variaveis,operadores.size(),variaveis.size());
         int idx = 0;
@@ -158,6 +159,7 @@ int main(int argc, char *argv[]){
     int j;
     for(j=0;j<num_geracoes;j++){
 
+        cout << j << " ";
         Arv *rand_arv;
         Arv *rand_arv2;
         Arv **pop_geracional = new Arv*[MAX_POP]; //Cria vetor de ponteiros para população geracional
@@ -233,11 +235,20 @@ int main(int argc, char *argv[]){
             melhor = i;
         }
     }
+
     cout << "Dados de treinamento" << endl;
     cout << "Aptidão da melhor árvore: " << pop_melhores[melhor]->aptidao << endl;
-    //string filename_melhor = "pop_melhor6es/funcao" + to_string(numFuncao) + ".csv";
+    
+    //string filename_melhor = "pop_melhores/funcao" + to_string(numFuncao) + ".csv";
     //createFile(pop_melhores[melhor], filename_melhor);
     //cout << "Arquivo criado com sucesso" << endl;
+    
+    for(int i=0;i<(dados_l)+1;i++){
+        for(int j=0;j<(dados_c)+1;j++){
+            delete [] dados[i];
+        }
+    }
+    delete [] dados;
     for (int i = 0; i < j; i++)
     {
         pop_melhores[i]->liberar();
