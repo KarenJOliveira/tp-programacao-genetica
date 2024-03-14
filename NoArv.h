@@ -10,11 +10,11 @@
 #include <random>
 #include <vector>
 #include <queue>
-#define MAX 1000
+#define MAX 5000
 #define ALTURA_MAX 10
 using namespace std;
 
-vector<char> variaveis = {'x','y','z'};
+vector<char> variaveis = {'x','y'};
 vector<char> operadores = {'+','-','*','/','^'};
 
 typedef struct NoArv
@@ -33,15 +33,6 @@ public:
         filho_esquerda = NULL;
         filho_direita = NULL;
     };
-
-    NoArv* getLeftChild() { return filho_esquerda; }
-    NoArv* getRightChild() { return filho_direita; }
-    void setLeftChild(NoArv* left) { filho_esquerda = left; }
-    void setRightChild(NoArv* right) { filho_direita = right; }
-    void setInfo(char info) { this->info = info; }
-    char getInfo() { return info; }
-    void setId(int id) { idx = id; }
-    int getId() { return idx; }
 
 }NoArv;
 
@@ -151,6 +142,9 @@ void Arv::implementa(NoArv *no,int altura, vector<char> operadores, vector<char>
 {
     if(altura == altura_max){
 
+        no->info = variaveis[rand()%size_var];
+        no->ehOperador = false;
+        /*
         no->info = operadores[rand()%size_op];
         no->ehOperador = true;
 
@@ -158,16 +152,30 @@ void Arv::implementa(NoArv *no,int altura, vector<char> operadores, vector<char>
         no->filho_direita = alocaNo();
         no->filho_esquerda->info = variaveis[rand()%size_var];
         no->filho_direita->info = variaveis[rand()%size_var];
+        */
         return;
     }
 
+    /*
     if(rand()%100 > 45){
         no->info = operadores[rand()%size_op];
+        
+        if(no->info == 'S' || no->info == 'C' || no->info == 'T'){
+            no->ehOperador = true;
+            no->filho_esquerda = alocaNo();
+            no->filho_esquerda->info = variaveis[rand()%size_var];
+            no->filho_direita = NULL;
+            return;
+        }
+        
         no->ehOperador = true;
     }else{
         no->info = variaveis[rand()%size_var];
         return;
     }
+    */
+    no->info = operadores[rand()%size_op];
+    no->ehOperador = true;
     no->filho_esquerda = alocaNo();
     no->filho_direita = alocaNo();
 
