@@ -1,5 +1,5 @@
-linhas,colunas
-10,4
+rows,10
+columns,4
 x,y,z,Valor_Esperado
 5,1,6,663
 6,5,0,1422

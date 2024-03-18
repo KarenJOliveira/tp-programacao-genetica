@@ -1,11 +1,14 @@
 {
-    "files.associations": {
-        "*.tcc": "cpp",
-        "iostream": "cpp",
-        "ostream": "cpp",
-        "iosfwd": "cpp",
-        "new": "cpp",
-        "random": "cpp",
-        "fstream": "cpp"
-    }
+  "files.associations": {
+    "*.tcc": "cpp",
+    "iostream": "cpp",
+    "ostream": "cpp",
+    "iosfwd": "cpp",
+    "new": "cpp",
+    "random": "cpp",
+    "fstream": "cpp",
+    "string": "cpp",
+    "istream": "cpp",
+    "xstring": "cpp"
+  }
 }

@@ -2,6 +2,7 @@ Treinamento Profissional - Implementação de Métodos de Programação Genétic
 (Em processo)
 
 Realizado:
+
 - Implementação nos nós com operadores e variáveis
 - Geração aleatória de população
 - Recombinação e mutação
@@ -9,7 +10,6 @@ Realizado:
 - Resolução de operações encontradas na árvore
 - Cálculo de aptidão da árvore
 - Substituição da população
-
 
 Procedimento:
 Gerar aleatoriamente um vetor de árvores--
@@ -21,4 +21,6 @@ Substituir a árvore filha menos apta pela parental encontrada--
 Apagar árvores parentais e salvar árvores filhas--
 Repetir processo
 
-
+Avaliar a população final e salvar a expressão da melhor
+Testar essa expressão com um conjunto de dados maior
+Obter a aptidão e comparar com o benchmark.

@@ -51,10 +51,12 @@ float** leArquivo(int *dados_l,int *dados_c, string filename){
             getline(file,line,',');
             stringstream ss(line);
             ss >> dados[l][c];  
+            //cout << dados[l][c] << " ";
         }
         getline(file,line);
         stringstream ss(line);
         ss >> dados[l][*dados_c-1];
+        //cout << dados[l][*dados_c-1] << endl;
     }
     
     return dados;
@@ -76,7 +78,7 @@ void createFile(Arv *melhor_arv, string filename){
 
     arv_expression = melhor_arv->retornaArvExp();
     //file << "\n";
-    file << arv_expression << "," << endl;
+    file << melhor_arv->aptidao<< "," << arv_expression << "," << endl;
     file.close();
 }
 
@@ -127,20 +129,22 @@ int main(int argc, char *argv[]){
     float taxa_cruzamento = 90;
     float taxa_mutacao = 90;
     
-    int numFuncao = stoi(argv[1]);
-    int qntDados = stoi(argv[2]);
-    
+    //int numFuncao = stoi(argv[1]);
+    //int qntDados = stoi(argv[2]);
+    int qntDados = 50;
     // Constrói o nome do arquivo com base nos valores de X e Y
-    string filename = "function_n_data/funcao" + to_string(numFuncao) + "/function_" + to_string(numFuncao) + "_" + to_string(qntDados) + "_data.csv";
-    //string filename = "data.csv";
-    int seed = stoi(argv[3]);
-    //int seed = 98;
+    //string filename = "function_n_data/funcao" + to_string(numFuncao) + "/function_" + to_string(numFuncao) + "_" + to_string(qntDados) + "_data.csv";
+    string filename = "function_n_data/funcao9/function_9_50_data.csv";
+    //int seed = stoi(argv[3]);
+    int seed = 98;
     srand(seed);
-    int dados_l;
-    int dados_c;
+    int dados_l = 0;
+    int dados_c = 0;
     
     float **dados;
     dados = leArquivo(&dados_l,&dados_c, filename);
+
+    
     Arv **pop_melhores = new Arv*[MAX_POP];
 
     Arv **pop_inicial = new Arv*[MAX_POP]; //Cria vetor de ponteiros para população inicial
@@ -159,7 +163,7 @@ int main(int argc, char *argv[]){
     int j;
     for(j=0;j<num_geracoes;j++){
 
-        cout << j << " ";
+        //cout << j << " ";
         Arv *rand_arv;
         Arv *rand_arv2;
         Arv **pop_geracional = new Arv*[MAX_POP]; //Cria vetor de ponteiros para população geracional
@@ -259,7 +263,7 @@ int main(int argc, char *argv[]){
 
     delete [] pop_melhores;
     delete [] pop_inicial;
-
+    
 
     return 0;
 }
